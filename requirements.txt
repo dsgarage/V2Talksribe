@@ -1,0 +1,13 @@
+numpy
+soundfile
+librosa
+webrtcvad-wheels
+tqdm
+typer
+rich
+pydantic==2.*
+scikit-learn
+faster-whisper
+speechbrain
+torch
+torchaudio
