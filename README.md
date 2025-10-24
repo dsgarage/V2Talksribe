@@ -6,6 +6,46 @@ Mac向けCUIの話者分離つき文字起こしツール。ローカル環境�
 
 talksribeは、音声ファイルから話者を自動識別し、発言ごとに文字起こしを行うCLIツールです。外部APIを使用せず、すべての処理をローカルで実行するため、機密性の高い音声データも安全に処理できます。
 
+## クイックスタート
+
+3ステップで音声文字起こしを始められます：
+
+### 1. インストール
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/dsgarage/V2Talksribe.git
+cd V2Talksribe
+
+# 仮想環境を作成して有効化
+python -m venv .venv
+source .venv/bin/activate
+
+# 依存関係をインストール
+pip install -r requirements.txt
+pip install 'torch==2.0.1' 'torchaudio==2.0.2' 'numpy<2'
+```
+
+### 2. 実行
+
+```bash
+# 音声ファイルを文字起こし
+python src/talksribe.py \
+  --audio your_audio.wav \
+  --model-size small \
+  --language ja
+```
+
+### 3. 結果確認
+
+出力ファイルは `./outputs` ディレクトリに生成されます：
+
+- `*.json` - 完全な文字起こしデータ（話者情報、タイムスタンプ含む）
+- `*.srt` - 動画字幕ファイル
+- `*.vtt` - Web動画字幕ファイル
+
+詳細な使い方は[Wiki](https://github.com/dsgarage/V2Talksribe/wiki)を参照してください。
+
 ### 主な機能
 
 - **発話区間検出（VAD）**: WebRTC VADを使用して音声区間を自動検出

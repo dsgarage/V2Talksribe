@@ -1,0 +1,56 @@
+version: "1.0"
+name: "talksribe_cli_build"
+description: "Mac向けCUIの話者分離つき文字起こしツールを生成・実行・パッケージ化するための指示"
+instructions:
+  - role: system
+    content: |
+      あなたはソフトウェア開発エージェントです。以下の要件を満たすCUIアプリを生成し、依存関係、実行手順、検証、パッケージ化まで行ってください。コードは**省略せず**にファイルへ保存します。
+  - role: user
+    content: |
+      # 要件
+      - ツール名: talksribe (CUI)
+      - 機能: 発話区間抽出(VAD) → 話者埋め込み(ECAPA) → クラスタリング → ASR(faster-whisper) → JSON/SRT/VTT出力
+      - 入力: 48kHz/32-bit float WAV等（長時間: ~1h）
+      - 話者数: 自動推定（silhouette）/ 固定指定の両対応
+      - 実行: `python src/talksribe.py transcribe --audio <file>`
+      - 依存: numpy, soundfile, librosa, webrtcvad-wheels, tqdm, typer, rich, pydantic>=2, scikit-learn, faster-whisper, speechbrain, torch, torchaudio
+      - 進捗の可視化: tqdm / rich
+      - 出力: ./outputs に *.json / *.srt / *.vtt
+      - 対象OS: macOS (Apple Silicon対応)
+      - ローカルで完結（外部API不要）
+
+      # 成果物
+      - src/talksribe.py（本体・**全文**）
+      - requirements.txt
+      - README.md（セットアップ・実行例）
+      - .gitignore
+      - build: Zip化成果物
+
+      # 検証
+      - ランダムノイズ生成の短尺WAVでCI的に起動確認（VADが空でもエラーにならないか確認）
+        - ただしASRモデルダウンロードはスキップ可
+      - flake8/ruffは任意
+
+      # パッケージ化
+      - 生成したファイル一式を `talksribe_cli.zip` にまとめる
+files:
+  - path: "src/talksribe.py"
+    purpose: "CUIアプリ本体"
+  - path: "requirements.txt"
+    purpose: "依存関係"
+  - path: "README.md"
+    purpose: "使い方/導入手順"
+  - path: ".gitignore"
+    purpose: "不要ファイル除外"
+run:
+  - step: "Python環境の用意と依存関係のインストール"
+    command: |
+      python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+  - step: "動作テスト（--helpの実行）"
+    command: |
+      source .venv/bin/activate && python src/talksribe.py --help
+  - step: "パッケージ化（Zip作成）"
+    command: |
+      zip -r talksribe_cli.zip src requirements.txt README.md .gitignore
+artifacts:
+  - "talksribe_cli.zip"
