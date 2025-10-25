@@ -22,7 +22,7 @@ def write_vtt(segs, path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--audio", required=True)
-    ap.add_argument("--outdir", default="./outputs")
+    ap.add_argument("--outdir", default=None, help="Output directory (default: same as audio file with folder name)")
     ap.add_argument("--model-size", default="small")
     ap.add_argument("--language", default="ja")              # 日本語前提（自動検出なら "auto"）
     ap.add_argument("--device", default="cpu")               # cpu 推奨（安定）
@@ -30,8 +30,17 @@ def main():
     ap.add_argument("--beam-size", type=int, default=3)      # 小さめで速く
     args = ap.parse_args()
 
-    os.makedirs(args.outdir, exist_ok=True)
+    # ファイル名（拡張子なし）を取得
     base = os.path.splitext(os.path.basename(args.audio))[0]
+
+    # 出力ディレクトリを決定：指定されない場合は元ファイルと同じ階層にファイル名のフォルダを作成
+    if args.outdir is None:
+        audio_dir = os.path.dirname(os.path.abspath(args.audio))
+        outdir = os.path.join(audio_dir, base)
+    else:
+        outdir = args.outdir
+
+    os.makedirs(outdir, exist_ok=True)
 
     print("=== Faster-Whisper Verify ===")
     print(f"Audio: {args.audio}")
@@ -54,9 +63,9 @@ def main():
     seg_list = [{"start": float(s.start or 0.0), "end": float(s.end or 0.0), "text": (s.text or "").strip()} for s in segments]
     t2 = time.time()
 
-    json_path = os.path.join(args.outdir, f"{base}.json")
-    srt_path  = os.path.join(args.outdir, f"{base}.srt")
-    vtt_path  = os.path.join(args.outdir, f"{base}.vtt")
+    json_path = os.path.join(outdir, f"{base}.json")
+    srt_path  = os.path.join(outdir, f"{base}.srt")
+    vtt_path  = os.path.join(outdir, f"{base}.vtt")
     with io.open(json_path, "w", encoding="utf-8") as f:
         f.write(json.dumps({
             "audio": os.path.abspath(args.audio),
