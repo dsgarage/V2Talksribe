@@ -1,0 +1,3940 @@
+1
+00:00:00,000 --> 00:00:07,000
+We can get waters that are not hardly authentic at all.
+
+2
+00:00:07,000 --> 00:00:09,000
+Anybody?
+
+3
+00:00:23,000 --> 00:00:25,000
+You want to start?
+
+4
+00:00:25,000 --> 00:00:27,000
+We're going to start.
+
+5
+00:00:27,000 --> 00:00:29,000
+Welcome everyone.
+
+6
+00:00:30,000 --> 00:00:37,000
+Thank you for joining us at the last panel of the first day of this convention.
+
+7
+00:00:37,000 --> 00:00:39,000
+I was also at the first panel.
+
+8
+00:00:39,000 --> 00:00:44,000
+That was a great panel.
+
+9
+00:00:44,000 --> 00:00:47,000
+This is very informal.
+
+10
+00:00:47,000 --> 00:00:50,000
+This is a group of incredibly awesome talented engineers.
+
+11
+00:00:50,000 --> 00:00:57,000
+It's kind of my dream panel to get this group up here to talk about digitizing audio.
+
+12
+00:00:57,000 --> 00:01:02,000
+This group knows more than anyone.
+
+13
+00:01:02,000 --> 00:01:09,000
+This group has dealt with every weird format, every unexpected, twisted thing you can imagine.
+
+14
+00:01:09,000 --> 00:01:16,000
+And because we are here to share and educate and build community,
+
+15
+00:01:16,000 --> 00:01:23,000
+we are inviting you all to ask us all of your digitizing questions and we will do our best to answer them.
+
+16
+00:01:23,000 --> 00:01:30,000
+First, I just want to run down and introduce everyone and we're not going to take 10 minutes to do our bios per person.
+
+17
+00:01:30,000 --> 00:01:32,000
+In fact, I'm going to model.
+
+18
+00:01:32,000 --> 00:01:34,000
+I'm Jessica Thompson.
+
+19
+00:01:34,000 --> 00:01:36,000
+I have a studio in Berkeley, California.
+
+20
+00:01:36,000 --> 00:01:47,000
+I digitize mostly cassettes, dates, quarter inch, half inch, and I love music.
+
+21
+00:01:47,000 --> 00:01:49,000
+I'm going to hand it off.
+
+22
+00:01:49,000 --> 00:01:51,000
+My name is Michael Graves.
+
+23
+00:01:51,000 --> 00:01:55,000
+I'm a mastering engineer, but I specialize in audio restoration.
+
+24
+00:01:55,000 --> 00:01:59,000
+Most of my mastering work is historical recordings.
+
+25
+00:01:59,000 --> 00:02:07,000
+That also means I've got a foot firmly in the preservation side because a lot of those mastering projects require you to work with old,
+
+26
+00:02:07,000 --> 00:02:13,000
+banged up media or boxes of whatever was recorded back in the day.
+
+27
+00:02:13,000 --> 00:02:18,000
+My other business, it's the same business, but I've got a lot of preservation suite.
+
+28
+00:02:18,000 --> 00:02:22,000
+We'll take machines, 90s, digital take machines.
+
+29
+00:02:22,000 --> 00:02:24,000
+I do a lot of work with group media also.
+
+30
+00:02:24,000 --> 00:02:30,000
+So all of a sudden, DAs, records, acid dates, and that kind of stuff.
+
+31
+00:02:30,000 --> 00:02:32,000
+I'm Kibir Herman.
+
+32
+00:02:32,000 --> 00:02:35,000
+I work at Stanford doing audio digitization.
+
+33
+00:02:35,000 --> 00:02:42,000
+We pretty much do stuff from cylinders all through digital media.
+
+34
+00:02:43,000 --> 00:02:46,000
+No, I feel like I spoke to a lot of people.
+
+35
+00:02:46,000 --> 00:02:49,000
+Well, I don't have time now. Thanks, Michael.
+
+36
+00:02:49,000 --> 00:02:51,000
+I'm Dan Johnson.
+
+37
+00:02:51,000 --> 00:02:54,000
+I own Audio Library Services at Burbank, California.
+
+38
+00:02:54,000 --> 00:02:58,000
+And I too love music, like Jessica.
+
+39
+00:02:58,000 --> 00:03:01,000
+All I do is pretty much tape transfers.
+
+40
+00:03:01,000 --> 00:03:05,000
+So I leave the discs up to these people.
+
+41
+00:03:05,000 --> 00:03:10,000
+But I have pretty much every tape machine known to man, unfortunately.
+
+42
+00:03:10,000 --> 00:03:15,000
+And that's all I do six days a week, 10 hours a day.
+
+43
+00:03:18,000 --> 00:03:20,000
+Okay, Katherine Verakoli.
+
+44
+00:03:20,000 --> 00:03:21,000
+Hi.
+
+45
+00:03:21,000 --> 00:03:25,000
+I own a central audio archiving based on Nashville.
+
+46
+00:03:25,000 --> 00:03:30,000
+So I pretty much do what Dan does just a little more unhinged.
+
+47
+00:03:30,000 --> 00:03:33,000
+So I travel a lot for this gig.
+
+48
+00:03:33,000 --> 00:03:36,000
+So I go to where the master page is.
+
+49
+00:03:36,000 --> 00:03:42,000
+And just sort of dig through old tapes and figure out what's going on
+
+50
+00:03:42,000 --> 00:03:45,000
+and try to figure out how to use the gear that's already there sometimes.
+
+51
+00:03:45,000 --> 00:03:51,000
+So I'm sort of like a traveling, unhinged, independent archivist.
+
+52
+00:03:51,000 --> 00:03:53,000
+I do some digital stuff.
+
+53
+00:03:53,000 --> 00:03:56,000
+I leave the disc stuff up to these professionals as well.
+
+54
+00:03:56,000 --> 00:04:00,000
+But I run a lot of Dats on the floor today.
+
+55
+00:04:00,000 --> 00:04:02,000
+And I run a lot of 8 acts.
+
+56
+00:04:02,000 --> 00:04:03,000
+And so does Dan.
+
+57
+00:04:03,000 --> 00:04:07,000
+So when I don't know what I'm doing, I usually just call Dan.
+
+58
+00:04:07,000 --> 00:04:08,000
+Well, okay, honestly.
+
+59
+00:04:08,000 --> 00:04:10,000
+You all will be all called Dan.
+
+60
+00:04:10,000 --> 00:04:11,000
+Yeah.
+
+61
+00:04:11,000 --> 00:04:14,000
+But I was going to say that's kind of a big point of this.
+
+62
+00:04:14,000 --> 00:04:17,000
+Like we do rely on each other a lot.
+
+63
+00:04:17,000 --> 00:04:18,000
+We share our knowledge.
+
+64
+00:04:18,000 --> 00:04:21,000
+We toss each other gates all the time.
+
+65
+00:04:21,000 --> 00:04:24,000
+I had kind of a question I wanted to start off with.
+
+66
+00:04:24,000 --> 00:04:27,000
+Because I think a lot of times coming into audio digitizing
+
+67
+00:04:27,000 --> 00:04:29,000
+or archiving from a more formal channel,
+
+68
+00:04:29,000 --> 00:04:31,000
+there are these best practices.
+
+69
+00:04:31,000 --> 00:04:34,000
+And you're taught the best practices, like you calibrate.
+
+70
+00:04:34,000 --> 00:04:36,000
+And you adjust azimuth and stuff like that.
+
+71
+00:04:36,000 --> 00:04:39,000
+And we all know that that's an important baseline.
+
+72
+00:04:39,000 --> 00:04:43,000
+And yet it's such, it's not a small part of what we do.
+
+73
+00:04:43,000 --> 00:04:48,000
+But the reality of doing this work involves much more creative
+
+74
+00:04:48,000 --> 00:04:51,000
+thought, problem solving, all of that.
+
+75
+00:04:51,000 --> 00:04:53,000
+So I wanted to just sort of start by saying like,
+
+76
+00:04:53,000 --> 00:04:55,000
+this is my question prompt.
+
+77
+00:04:55,000 --> 00:04:59,000
+What's something you know now that isn't part of the educational curriculum
+
+78
+00:04:59,000 --> 00:05:03,000
+of best practices, but that you employ every day when you do this work?
+
+79
+00:05:03,000 --> 00:05:05,000
+I must go first.
+
+80
+00:05:05,000 --> 00:05:06,000
+Yeah.
+
+81
+00:05:06,000 --> 00:05:07,000
+You might.
+
+82
+00:05:10,000 --> 00:05:11,000
+I tell you what I don't do.
+
+83
+00:05:11,000 --> 00:05:13,000
+I don't do the white glove thing.
+
+84
+00:05:13,000 --> 00:05:15,000
+And I know some, I'm not sure if that's really...
+
+85
+00:05:15,000 --> 00:05:16,000
+Yeah.
+
+86
+00:05:16,000 --> 00:05:20,000
+I feel like I know a lot of the group media crowd
+
+87
+00:05:20,000 --> 00:05:22,000
+will want to use white gloves,
+
+88
+00:05:22,000 --> 00:05:26,000
+especially like in more educational institutions.
+
+89
+00:05:26,000 --> 00:05:30,000
+I always feel like I'm going to slip and drop the record.
+
+90
+00:05:30,000 --> 00:05:33,000
+So I know I have a little record by the edges.
+
+91
+00:05:33,000 --> 00:05:36,000
+I don't know how to put it on there without touching the group.
+
+92
+00:05:36,000 --> 00:05:38,000
+So no white gloves.
+
+93
+00:05:38,000 --> 00:05:40,000
+I would say go use white gloves.
+
+94
+00:05:40,000 --> 00:05:42,000
+Because you could be able to slip out of your hands.
+
+95
+00:05:42,000 --> 00:05:46,000
+I want to say that the biggest thing that I learned
+
+96
+00:05:46,000 --> 00:05:49,000
+is that we assume that records that were made,
+
+97
+00:05:49,000 --> 00:05:52,000
+that maybe we covet or think are really incredible,
+
+98
+00:05:52,000 --> 00:05:54,000
+were recorded properly.
+
+99
+00:05:55,000 --> 00:05:58,000
+What makes properly or master properly
+
+100
+00:05:58,000 --> 00:06:01,000
+or cut properly, printed properly,
+
+101
+00:06:01,000 --> 00:06:03,000
+and well they're not.
+
+102
+00:06:03,000 --> 00:06:06,000
+So when you get a master tape
+
+103
+00:06:06,000 --> 00:06:09,000
+and you have like a preconceived notion of what that's going to be,
+
+104
+00:06:09,000 --> 00:06:11,000
+you realize that there are like
+
+105
+00:06:11,000 --> 00:06:14,000
+absolutely insane tones on there that make no sense,
+
+106
+00:06:14,000 --> 00:06:16,000
+or there's no tones,
+
+107
+00:06:16,000 --> 00:06:20,000
+or whoever was doing the editing or the littering,
+
+108
+00:06:20,000 --> 00:06:22,000
+or just any of that.
+
+109
+00:06:22,000 --> 00:06:25,000
+It just was, we didn't do it on purpose,
+
+110
+00:06:25,000 --> 00:06:27,000
+we did it on drugs.
+
+111
+00:06:27,000 --> 00:06:29,000
+There was a lot of cocaine back then.
+
+112
+00:06:29,000 --> 00:06:32,000
+You just sort of like, wow, this is, you know,
+
+113
+00:06:32,000 --> 00:06:35,000
+you forget that there's a lot of things that happen in a process
+
+114
+00:06:35,000 --> 00:06:37,000
+from recording to mixing to printing,
+
+115
+00:06:37,000 --> 00:06:40,000
+because again I work with love, open really well.
+
+116
+00:06:40,000 --> 00:06:43,000
+And some of the stuff that I got into recently
+
+117
+00:06:43,000 --> 00:06:45,000
+with the Westbound Collection
+
+118
+00:06:45,000 --> 00:06:47,000
+and some other things we've been in,
+
+119
+00:06:47,000 --> 00:06:49,000
+it's absolutely insane.
+
+120
+00:06:49,000 --> 00:06:52,000
+And yeah, so the fundamentals are best practice,
+
+121
+00:06:52,000 --> 00:06:54,000
+but that's just the starting point.
+
+122
+00:06:54,000 --> 00:06:56,000
+And then from there it's like how do we figure out
+
+123
+00:06:56,000 --> 00:06:59,000
+how to get around those things that we didn't,
+
+124
+00:06:59,000 --> 00:07:01,000
+you know, assume either.
+
+125
+00:07:01,000 --> 00:07:03,000
+You know, we were joking that we did a lot of drugs back then.
+
+126
+00:07:03,000 --> 00:07:04,000
+That is true.
+
+127
+00:07:04,000 --> 00:07:06,000
+It's an interesting fact that that in.
+
+128
+00:07:06,000 --> 00:07:08,000
+I mean, I've opened up tape boxes and found joints
+
+129
+00:07:08,000 --> 00:07:10,000
+from like 1977.
+
+130
+00:07:10,000 --> 00:07:12,000
+Yeah, I've found folk residue,
+
+131
+00:07:12,000 --> 00:07:14,000
+and a little straws.
+
+132
+00:07:14,000 --> 00:07:16,000
+A lot of mine did these.
+
+133
+00:07:16,000 --> 00:07:18,000
+I've also found burner phones.
+
+134
+00:07:18,000 --> 00:07:20,000
+And a tape box.
+
+135
+00:07:20,000 --> 00:07:22,000
+And a tape box.
+
+136
+00:07:22,000 --> 00:07:24,000
+It was hip hop.
+
+137
+00:07:24,000 --> 00:07:30,000
+I'm going to start with a little picture here.
+
+138
+00:07:30,000 --> 00:07:33,000
+And I titled this slide,
+
+139
+00:07:33,000 --> 00:07:35,000
+What Do I Do When?
+
+140
+00:07:35,000 --> 00:07:37,000
+This is your slide.
+
+141
+00:07:37,000 --> 00:07:40,000
+Oh yeah, the SSD tapes.
+
+142
+00:07:40,000 --> 00:07:42,000
+Refer to as the toilet tapes.
+
+143
+00:07:42,000 --> 00:07:43,000
+Yes.
+
+144
+00:07:43,000 --> 00:07:48,000
+So these tapes were kept in a basement that flooded
+
+145
+00:07:48,000 --> 00:07:51,000
+for several decades.
+
+146
+00:07:51,000 --> 00:07:54,000
+And then shipped to me.
+
+147
+00:07:54,000 --> 00:07:56,000
+And the owner of the label was like,
+
+148
+00:07:56,000 --> 00:07:59,000
+hey, I'm shipping some tapes to you from Boston.
+
+149
+00:07:59,000 --> 00:08:01,000
+You know, let me know when they get there
+
+150
+00:08:01,000 --> 00:08:03,000
+and they get there and I open up the box
+
+151
+00:08:03,000 --> 00:08:05,000
+and that's where I find it.
+
+152
+00:08:05,000 --> 00:08:07,000
+And I call them up and I'm like,
+
+153
+00:08:07,000 --> 00:08:09,000
+what are you doing?
+
+154
+00:08:09,000 --> 00:08:12,000
+Like I don't know if I can do anything with these.
+
+155
+00:08:12,000 --> 00:08:14,000
+And his response was,
+
+156
+00:08:14,000 --> 00:08:17,000
+this is what you've been training for your entire life.
+
+157
+00:08:17,000 --> 00:08:21,000
+And I was actually,
+
+158
+00:08:21,000 --> 00:08:24,000
+it took me over 100 hours of hand-themed tapes
+
+159
+00:08:24,000 --> 00:08:27,000
+with a ronson old lighter fluid.
+
+160
+00:08:27,000 --> 00:08:31,000
+And, you know, giving you a little mold on the tapes
+
+161
+00:08:31,000 --> 00:08:33,000
+and they probably had like maybe
+
+162
+00:08:33,000 --> 00:08:36,000
+an eighth of an inch of dirt and sediment on top of them.
+
+163
+00:08:36,000 --> 00:08:38,000
+There were nine tapes in total
+
+164
+00:08:38,000 --> 00:08:41,000
+and I actually got all nine to play.
+
+165
+00:08:42,000 --> 00:08:44,000
+And I don't know how I did it.
+
+166
+00:08:44,000 --> 00:08:46,000
+I don't know if it's reputable,
+
+167
+00:08:46,000 --> 00:08:49,000
+but yeah, that's the end result afterwards.
+
+168
+00:08:49,000 --> 00:08:51,000
+What?
+
+169
+00:08:51,000 --> 00:08:54,000
+Yeah, it was the longest 100 hours of my life.
+
+170
+00:08:54,000 --> 00:08:56,000
+And do you charge by the hour?
+
+171
+00:08:56,000 --> 00:08:59,000
+I do, but there was no way I was going to charge
+
+172
+00:08:59,000 --> 00:09:01,000
+them for 100 hours of that.
+
+173
+00:09:01,000 --> 00:09:05,000
+So that album had not been reissued at all
+
+174
+00:09:05,000 --> 00:09:07,000
+at that point.
+
+175
+00:09:07,000 --> 00:09:09,000
+It was never issued.
+
+176
+00:09:09,000 --> 00:09:11,000
+Really?
+
+177
+00:09:11,000 --> 00:09:13,000
+Yeah, Dave actually mastered it.
+
+178
+00:09:13,000 --> 00:09:15,000
+Yeah, it worked for the good ones.
+
+179
+00:09:15,000 --> 00:09:17,000
+That made it even more important.
+
+180
+00:09:17,000 --> 00:09:21,000
+Yeah, so it was a very fundamental hard-core punk album
+
+181
+00:09:21,000 --> 00:09:25,000
+from 1981 to 1982.
+
+182
+00:09:25,000 --> 00:09:27,000
+Yeah, that's one of my favorites,
+
+183
+00:09:27,000 --> 00:09:29,000
+but I don't want to do that again.
+
+184
+00:09:29,000 --> 00:09:31,000
+I have one coming up.
+
+185
+00:09:31,000 --> 00:09:33,000
+That's really, really close to that,
+
+186
+00:09:33,000 --> 00:09:35,000
+but it's too much.
+
+187
+00:09:35,000 --> 00:09:38,000
+So it'll be extra spicy.
+
+188
+00:09:38,000 --> 00:09:40,000
+I'll call Ian.
+
+189
+00:09:40,000 --> 00:09:42,000
+What are you talking about?
+
+190
+00:09:42,000 --> 00:09:44,000
+Do you ever use, like, the RTIA tissue
+
+191
+00:09:44,000 --> 00:09:46,000
+and run passes over that?
+
+192
+00:09:46,000 --> 00:09:48,000
+I will do that, yeah.
+
+193
+00:09:48,000 --> 00:09:50,000
+So I'll put it around the heads.
+
+194
+00:09:50,000 --> 00:09:53,000
+And then, especially with lubricant issues,
+
+195
+00:09:53,000 --> 00:09:55,000
+that's the best thing to do.
+
+196
+00:09:55,000 --> 00:09:57,000
+But with this, lighter fluid,
+
+197
+00:09:57,000 --> 00:09:59,000
+it's the best thing to take it very well
+
+198
+00:09:59,000 --> 00:10:01,000
+and dump it on the tapes.
+
+199
+00:10:01,000 --> 00:10:04,000
+Yeah, I was a little scared
+
+200
+00:10:04,000 --> 00:10:06,000
+to bake it first,
+
+201
+00:10:06,000 --> 00:10:08,000
+just because I didn't know
+
+202
+00:10:08,000 --> 00:10:10,000
+what was going to bake into the tape
+
+203
+00:10:10,000 --> 00:10:13,000
+because it was still a little juicy
+
+204
+00:10:13,000 --> 00:10:15,000
+to put it mildly.
+
+205
+00:10:15,000 --> 00:10:17,000
+So I just wanted to kind of clean them up first
+
+206
+00:10:17,000 --> 00:10:19,000
+and see if I could get the tapes
+
+207
+00:10:19,000 --> 00:10:21,000
+unravelled with that baking.
+
+208
+00:10:21,000 --> 00:10:24,000
+And they were fine.
+
+209
+00:10:24,000 --> 00:10:26,000
+Masked up.
+
+210
+00:10:26,000 --> 00:10:28,000
+Oh, yeah.
+
+211
+00:10:28,000 --> 00:10:30,000
+Nitroplugs, masks, the whole thing.
+
+212
+00:10:30,000 --> 00:10:32,000
+Tepid filters everywhere.
+
+213
+00:10:32,000 --> 00:10:35,000
+I don't know if that works at all yet.
+
+214
+00:10:35,000 --> 00:10:38,000
+It's some Stanford stuff.
+
+215
+00:10:38,000 --> 00:10:40,000
+I just go outside.
+
+216
+00:10:40,000 --> 00:10:42,000
+I just take them outside,
+
+217
+00:10:42,000 --> 00:10:44,000
+and it doesn't ring.
+
+218
+00:10:44,000 --> 00:10:46,000
+We really wanted this to be interactive,
+
+219
+00:10:46,000 --> 00:10:48,000
+so if you have questions,
+
+220
+00:10:48,000 --> 00:10:50,000
+I can bring them out.
+
+221
+00:10:50,000 --> 00:10:52,000
+It feels really weird that there's all these chairs
+
+222
+00:10:52,000 --> 00:10:54,000
+in between people,
+
+223
+00:10:54,000 --> 00:10:57,000
+so maybe it has to scoot up.
+
+224
+00:10:57,000 --> 00:11:00,000
+I'm going to jump in the middle of our conversation.
+
+225
+00:11:01,000 --> 00:11:04,000
+I feel like dancing.
+
+226
+00:11:04,000 --> 00:11:06,000
+You can do that too.
+
+227
+00:11:06,000 --> 00:11:08,000
+So using the mic in the middle
+
+228
+00:11:08,000 --> 00:11:10,000
+in case it's recorded.
+
+229
+00:11:10,000 --> 00:11:13,000
+Have you ever had to deal with
+
+230
+00:11:13,000 --> 00:11:17,000
+a 3-8 inch wide 3-track tape?
+
+231
+00:11:17,000 --> 00:11:19,000
+No.
+
+232
+00:11:19,000 --> 00:11:21,000
+It doesn't happen to 3-track,
+
+233
+00:11:21,000 --> 00:11:23,000
+it never happens to me.
+
+234
+00:11:23,000 --> 00:11:25,000
+It happens to me.
+
+235
+00:11:25,000 --> 00:11:27,000
+Elatron.
+
+236
+00:11:28,000 --> 00:11:30,000
+That's an ADS highlight.
+
+237
+00:11:30,000 --> 00:11:32,000
+That's Dustin.
+
+238
+00:11:32,000 --> 00:11:34,000
+So our ADS standard is
+
+239
+00:11:34,000 --> 00:11:36,000
+I'm not mistaken,
+
+240
+00:11:36,000 --> 00:11:38,000
+96.24 for our battle.
+
+241
+00:11:38,000 --> 00:11:40,000
+Depends.
+
+242
+00:11:40,000 --> 00:11:42,000
+I also have recommendations.
+
+243
+00:11:42,000 --> 00:11:44,000
+That's usually what I like.
+
+244
+00:11:44,000 --> 00:11:46,000
+Some clients like 192,
+
+245
+00:11:46,000 --> 00:11:48,000
+I'm not a big fan of that,
+
+246
+00:11:48,000 --> 00:11:50,000
+because I'm also an imaginary engineer,
+
+247
+00:11:50,000 --> 00:11:52,000
+and I'm just paying the ass to work
+
+248
+00:11:52,000 --> 00:11:54,000
+with one of my friends.
+
+249
+00:11:54,000 --> 00:11:57,000
+So if somebody gives me a 192 archival file,
+
+250
+00:11:57,000 --> 00:11:59,000
+I'm the first thing I'm going to do
+
+251
+00:11:59,000 --> 00:12:01,000
+is down sample from 96.
+
+252
+00:12:01,000 --> 00:12:03,000
+So I never am advising my clients
+
+253
+00:12:03,000 --> 00:12:05,000
+I would suggest from 96,
+
+254
+00:12:05,000 --> 00:12:07,000
+but if they want 192, I would do it.
+
+255
+00:12:07,000 --> 00:12:09,000
+Is there any argument to go up
+
+256
+00:12:09,000 --> 00:12:11,000
+and sample and rate
+
+257
+00:12:11,000 --> 00:12:13,000
+or bit depth for something they didn't think
+
+258
+00:12:13,000 --> 00:12:15,000
+you should take a one pass or anything?
+
+259
+00:12:15,000 --> 00:12:17,000
+I'm going to say no.
+
+260
+00:12:17,000 --> 00:12:19,000
+There's actually arguments to not go one.
+
+261
+00:12:19,000 --> 00:12:21,000
+I know there's some mastering engineers
+
+262
+00:12:21,000 --> 00:12:23,000
+who will say that they don't know
+
+263
+00:12:23,000 --> 00:12:25,000
+the sound of 192.
+
+264
+00:12:25,000 --> 00:12:27,000
+I don't know if I hear a difference in that honestly,
+
+265
+00:12:27,000 --> 00:12:29,000
+but it's just becomes a hard
+
+266
+00:12:29,000 --> 00:12:31,000
+and difficult to work with.
+
+267
+00:12:31,000 --> 00:12:33,000
+Some people go up to DSD,
+
+268
+00:12:33,000 --> 00:12:35,000
+but it's impossible to work with those files.
+
+269
+00:12:35,000 --> 00:12:37,000
+The question is, can we do a wave file?
+
+270
+00:12:37,000 --> 00:12:39,000
+Exactly.
+
+271
+00:12:39,000 --> 00:12:41,000
+I did a collection where I ran
+
+272
+00:12:41,000 --> 00:12:43,000
+simultaneously DSD and 96.24.
+
+273
+00:12:43,000 --> 00:12:45,000
+Do the DSDs live on our drive,
+
+274
+00:12:45,000 --> 00:12:47,000
+and the 96.24s will actually be
+
+275
+00:12:47,000 --> 00:12:49,000
+utilized and work.
+
+276
+00:12:49,000 --> 00:12:51,000
+I'm not a fan of DSDs.
+
+277
+00:12:52,000 --> 00:12:54,000
+I usually say 96.24
+
+278
+00:12:54,000 --> 00:12:56,000
+is kind of a standard,
+
+279
+00:12:56,000 --> 00:12:58,000
+but the request of 192
+
+280
+00:12:58,000 --> 00:13:00,000
+where there's a lot of processing
+
+281
+00:13:00,000 --> 00:13:02,000
+or something, sometimes academia
+
+282
+00:13:02,000 --> 00:13:04,000
+is really into 192 because
+
+283
+00:13:04,000 --> 00:13:06,000
+they like difficult stuff.
+
+284
+00:13:06,000 --> 00:13:08,000
+So I'll do it for that,
+
+285
+00:13:08,000 --> 00:13:10,000
+but it's basically rather the client.
+
+286
+00:13:10,000 --> 00:13:12,000
+I mean, I've had clients ask me for like
+
+287
+00:13:12,000 --> 00:13:14,000
+44.16s.
+
+288
+00:13:14,000 --> 00:13:16,000
+I will say there's one, I'm going to be correct one thing.
+
+289
+00:13:16,000 --> 00:13:18,000
+I said, Jamie Haworth,
+
+290
+00:13:18,000 --> 00:13:20,000
+who runs Planta Process,
+
+291
+00:13:21,000 --> 00:13:23,000
+Planta Process is this,
+
+292
+00:13:23,000 --> 00:13:25,000
+it's a proprietary process
+
+293
+00:13:25,000 --> 00:13:27,000
+he has where he corrects well and flutter
+
+294
+00:13:27,000 --> 00:13:29,000
+on a very intricate level,
+
+295
+00:13:29,000 --> 00:13:31,000
+and he does like a much higher sampling rate,
+
+296
+00:13:31,000 --> 00:13:34,000
+but he also likes to report things with this special head,
+
+297
+00:13:34,000 --> 00:13:36,000
+so I'll go ahead.
+
+298
+00:13:36,000 --> 00:13:38,000
+Well, I'll be the contrarian,
+
+299
+00:13:38,000 --> 00:13:40,000
+and I do everything in 192.24.
+
+300
+00:13:40,000 --> 00:13:42,000
+I'm not a master engineer,
+
+301
+00:13:42,000 --> 00:13:44,000
+but I figured it can always be
+
+302
+00:13:44,000 --> 00:13:46,000
+down-sampled.
+
+303
+00:13:46,000 --> 00:13:48,000
+You can't up-sample it,
+
+304
+00:13:48,000 --> 00:13:50,000
+so I'm just kind of thinking about
+
+305
+00:13:50,000 --> 00:13:52,000
+future proven if at some point in time,
+
+306
+00:13:52,000 --> 00:13:54,000
+192.24 becomes
+
+307
+00:13:54,000 --> 00:13:56,000
+an HD standard,
+
+308
+00:13:56,000 --> 00:13:58,000
+it's already there.
+
+309
+00:13:58,000 --> 00:14:00,000
+That's the way I do it.
+
+310
+00:14:00,000 --> 00:14:02,000
+I think it should be fronted to
+
+311
+00:14:02,000 --> 00:14:04,000
+at some of the institutions that work,
+
+312
+00:14:04,000 --> 00:14:06,000
+that it's storage even to your doubling file size
+
+313
+00:14:06,000 --> 00:14:08,000
+every time you do that,
+
+314
+00:14:08,000 --> 00:14:10,000
+hundreds or thousands of tapes you're trying
+
+315
+00:14:10,000 --> 00:14:12,000
+to store somewhere.
+
+316
+00:14:12,000 --> 00:14:14,000
+That's true.
+
+317
+00:14:14,000 --> 00:14:16,000
+Any other questions?
+
+318
+00:14:16,000 --> 00:14:18,000
+Anything else to get weird?
+
+319
+00:14:18,000 --> 00:14:20,000
+There you go.
+
+320
+00:14:20,000 --> 00:14:22,000
+I'll get weird right there.
+
+321
+00:14:22,000 --> 00:14:24,000
+So, as analog
+
+322
+00:14:24,000 --> 00:14:26,000
+recording media continues to deteriorate
+
+323
+00:14:26,000 --> 00:14:28,000
+over time,
+
+324
+00:14:28,000 --> 00:14:30,000
+how do you handle the first 30 seconds
+
+325
+00:14:30,000 --> 00:14:32,000
+of a real 456 nowadays?
+
+326
+00:14:32,000 --> 00:14:34,000
+Put it in the oven?
+
+327
+00:14:34,000 --> 00:14:36,000
+Yeah, it depends.
+
+328
+00:14:36,000 --> 00:14:38,000
+Two inch 456
+
+329
+00:14:38,000 --> 00:14:40,000
+and 406 from the early
+
+330
+00:14:40,000 --> 00:14:42,000
+to mid-80s
+
+331
+00:14:42,000 --> 00:14:44,000
+we're starting to see something called a
+
+332
+00:14:44,000 --> 00:14:46,000
+brain syndrome
+
+333
+00:14:46,000 --> 00:14:48,000
+where it fuses to itself
+
+334
+00:14:48,000 --> 00:14:50,000
+near the hub.
+
+335
+00:14:56,000 --> 00:14:58,000
+I wind it as slowly as possible.
+
+336
+00:14:58,000 --> 00:15:00,000
+That's the best I can do.
+
+337
+00:15:00,000 --> 00:15:02,000
+Iron Mountain
+
+338
+00:15:02,000 --> 00:15:04,000
+says that they have a
+
+339
+00:15:04,000 --> 00:15:06,000
+system to deal with it,
+
+340
+00:15:06,000 --> 00:15:08,000
+but it's handed
+
+341
+00:15:08,000 --> 00:15:10,000
+and they're not sharing any information
+
+342
+00:15:10,000 --> 00:15:12,000
+with any of us.
+
+343
+00:15:12,000 --> 00:15:14,000
+So, until
+
+344
+00:15:14,000 --> 00:15:16,000
+we find out a better way
+
+345
+00:15:16,000 --> 00:15:18,000
+then that's what we have.
+
+346
+00:15:18,000 --> 00:15:20,000
+So, just as slowly as possible.
+
+347
+00:15:20,000 --> 00:15:22,000
+Are you seeing this weird
+
+348
+00:15:22,000 --> 00:15:24,000
+stippling thing?
+
+349
+00:15:24,000 --> 00:15:26,000
+Okay, we're not talking about where there's a little tiny
+
+350
+00:15:26,000 --> 00:15:28,000
+pinhole.
+
+351
+00:15:28,000 --> 00:15:30,000
+We call it stick on the
+
+352
+00:15:30,000 --> 00:15:32,000
+upper and lower edges.
+
+353
+00:15:32,000 --> 00:15:34,000
+And then as you get closer
+
+354
+00:15:34,000 --> 00:15:36,000
+to the hub, it starts going there
+
+355
+00:15:36,000 --> 00:15:38,000
+towards the center.
+
+356
+00:15:38,000 --> 00:15:40,000
+So, that's
+
+357
+00:15:40,000 --> 00:15:42,000
+early to mid-80s
+
+358
+00:15:42,000 --> 00:15:44,000
+what did you say before?
+
+359
+00:15:48,000 --> 00:15:50,000
+The answer is just
+
+360
+00:15:50,000 --> 00:15:52,000
+risk evaluation.
+
+361
+00:15:52,000 --> 00:15:54,000
+So, just do the best you can
+
+362
+00:15:54,000 --> 00:15:56,000
+with what you have until
+
+363
+00:15:56,000 --> 00:15:58,000
+somebody breaks into Iron Mountain
+
+364
+00:15:58,000 --> 00:16:00,000
+and threatens somebody.
+
+365
+00:16:00,000 --> 00:16:02,000
+I don't really know if their system works.
+
+366
+00:16:02,000 --> 00:16:04,000
+I know nothing about it.
+
+367
+00:16:06,000 --> 00:16:08,000
+Some tapes are just
+
+368
+00:16:08,000 --> 00:16:10,000
+just had problems.
+
+369
+00:16:10,000 --> 00:16:12,000
+It's true.
+
+370
+00:16:12,000 --> 00:16:14,000
+You can't recover everything.
+
+371
+00:16:14,000 --> 00:16:16,000
+The fact that you can recover what you can
+
+372
+00:16:16,000 --> 00:16:18,000
+I mean, analog tape is one of the most resilient
+
+373
+00:16:18,000 --> 00:16:20,000
+mediums
+
+374
+00:16:20,000 --> 00:16:22,000
+out there.
+
+375
+00:16:22,000 --> 00:16:24,000
+There's always this argument of how do we future-proof things?
+
+376
+00:16:24,000 --> 00:16:26,000
+Where do we put it?
+
+377
+00:16:26,000 --> 00:16:28,000
+So, we'll ask forever.
+
+378
+00:16:28,000 --> 00:16:30,000
+Hard drive is not the first thing that comes to mind for me.
+
+379
+00:16:30,000 --> 00:16:32,000
+And I certainly hope it isn't
+
+380
+00:16:32,000 --> 00:16:34,000
+for any of you.
+
+381
+00:16:34,000 --> 00:16:36,000
+Either, the first answer is what we should print its tape.
+
+382
+00:16:36,000 --> 00:16:38,000
+And I'm going to pull it
+
+383
+00:16:38,000 --> 00:16:40,000
+I'm going to tape from the
+
+384
+00:16:40,000 --> 00:16:42,000
+1959-1960 acetate.
+
+385
+00:16:42,000 --> 00:16:44,000
+It'll play back brilliantly
+
+386
+00:16:44,000 --> 00:16:46,000
+if it's stored properly.
+
+387
+00:16:46,000 --> 00:16:48,000
+But I mean,
+
+388
+00:16:48,000 --> 00:16:50,000
+if it's stored properly
+
+389
+00:16:50,000 --> 00:16:52,000
+that's practice there.
+
+390
+00:16:52,000 --> 00:16:54,000
+That's how many years ago it's not.
+
+391
+00:16:54,000 --> 00:16:56,000
+The thing that I worried about
+
+392
+00:16:56,000 --> 00:16:58,000
+with making analog copies of things
+
+393
+00:16:58,000 --> 00:17:00,000
+is the availability
+
+394
+00:17:00,000 --> 00:17:02,000
+of machines and parts.
+
+395
+00:17:02,000 --> 00:17:04,000
+They're not
+
+396
+00:17:04,000 --> 00:17:06,000
+we're running out of parts
+
+397
+00:17:06,000 --> 00:17:08,000
+and
+
+398
+00:17:08,000 --> 00:17:10,000
+heads
+
+399
+00:17:10,000 --> 00:17:12,000
+and tax.
+
+400
+00:17:12,000 --> 00:17:14,000
+That's the main thing.
+
+401
+00:17:14,000 --> 00:17:16,000
+The institutional knowledge
+
+402
+00:17:16,000 --> 00:17:18,000
+of how to make these things work
+
+403
+00:17:18,000 --> 00:17:20,000
+will work through problems.
+
+404
+00:17:20,000 --> 00:17:22,000
+Which is why we're all here sharing
+
+405
+00:17:22,000 --> 00:17:24,000
+a little bit of
+
+406
+00:17:24,000 --> 00:17:26,000
+I shouldn't say that.
+
+407
+00:17:26,000 --> 00:17:28,000
+Do you believe knowledgeable?
+
+408
+00:17:28,000 --> 00:17:30,000
+No, you're right.
+
+409
+00:17:30,000 --> 00:17:32,000
+Little bits.
+
+410
+00:17:32,000 --> 00:17:34,000
+There's so much out there.
+
+411
+00:17:34,000 --> 00:17:36,000
+I wish we were being passed on to us.
+
+412
+00:17:36,000 --> 00:17:38,000
+Oh my god, yeah.
+
+413
+00:17:38,000 --> 00:17:40,000
+Alright, because I think it's a little video.
+
+414
+00:17:40,000 --> 00:17:42,000
+It's gonna be an easy question
+
+415
+00:17:42,000 --> 00:17:44,000
+because I'm pulling pictures from stuff I've worked on
+
+416
+00:17:44,000 --> 00:17:46,000
+but
+
+417
+00:17:46,000 --> 00:17:48,000
+when you get a tape
+
+418
+00:17:48,000 --> 00:17:50,000
+and the pack is super wavy
+
+419
+00:17:50,000 --> 00:17:52,000
+and it goes slow.
+
+420
+00:17:52,000 --> 00:17:54,000
+That's an easy one. Go slow.
+
+421
+00:17:54,000 --> 00:17:56,000
+Always go slow.
+
+422
+00:17:56,000 --> 00:17:58,000
+Always.
+
+423
+00:17:58,000 --> 00:18:00,000
+And if it's polyester just to see
+
+424
+00:18:00,000 --> 00:18:02,000
+that those splices
+
+425
+00:18:02,000 --> 00:18:04,000
+are gonna break.
+
+426
+00:18:04,000 --> 00:18:06,000
+And it's paper leader.
+
+427
+00:18:06,000 --> 00:18:08,000
+And paper leader is the devil.
+
+428
+00:18:08,000 --> 00:18:10,000
+It's pretty bad.
+
+429
+00:18:10,000 --> 00:18:12,000
+So this one.
+
+430
+00:18:12,000 --> 00:18:14,000
+These are actual photos that I've
+
+431
+00:18:14,000 --> 00:18:16,000
+texted to Dan in the past couple of years.
+
+432
+00:18:16,000 --> 00:18:18,000
+Because whenever I get a weird one
+
+433
+00:18:18,000 --> 00:18:20,000
+I'm like, what's this format?
+
+434
+00:18:20,000 --> 00:18:22,000
+First of all, it's my language.
+
+435
+00:18:22,000 --> 00:18:24,000
+So shout out
+
+436
+00:18:24,000 --> 00:18:26,000
+to Arnold. I actually just
+
+437
+00:18:26,000 --> 00:18:28,000
+straight up called my Arnold.
+
+438
+00:18:28,000 --> 00:18:30,000
+He's a 102-2 magnetic viewer
+
+439
+00:18:30,000 --> 00:18:32,000
+that helps you
+
+440
+00:18:32,000 --> 00:18:34,000
+view
+
+441
+00:18:34,000 --> 00:18:36,000
+the track format
+
+442
+00:18:36,000 --> 00:18:38,000
+on a piece of analog tape.
+
+443
+00:18:38,000 --> 00:18:40,000
+These are all quarter inch tapes
+
+444
+00:18:40,000 --> 00:18:42,000
+that I got.
+
+445
+00:18:42,000 --> 00:18:44,000
+Unwabled, you know, boxes never
+
+446
+00:18:44,000 --> 00:18:46,000
+are, but they say there are.
+
+447
+00:18:46,000 --> 00:18:48,000
+And these are unusual formats
+
+448
+00:18:48,000 --> 00:18:50,000
+and I don't know if you can see them
+
+449
+00:18:50,000 --> 00:18:52,000
+Dan, but they were very helpful
+
+450
+00:18:52,000 --> 00:18:54,000
+in like
+
+451
+00:18:54,000 --> 00:18:56,000
+guiding me
+
+452
+00:18:56,000 --> 00:18:58,000
+to figure out what these were.
+
+453
+00:18:58,000 --> 00:19:00,000
+And I think one was like, oh, it was
+
+454
+00:19:00,000 --> 00:19:02,000
+a quarter track that they only recorded
+
+455
+00:19:02,000 --> 00:19:04,000
+on two and three
+
+456
+00:19:04,000 --> 00:19:06,000
+or, you know, this one had
+
+457
+00:19:06,000 --> 00:19:08,000
+a pilot tone or something.
+
+458
+00:19:08,000 --> 00:19:10,000
+Yeah, I think the first one's
+
+459
+00:19:10,000 --> 00:19:12,000
+an agro, the 60 Hertz pilot tone.
+
+460
+00:19:12,000 --> 00:19:14,000
+And then I think one was maybe
+
+461
+00:19:14,000 --> 00:19:16,000
+like a full track mono
+
+462
+00:19:16,000 --> 00:19:18,000
+that they recorded a quarter track
+
+463
+00:19:18,000 --> 00:19:20,000
+over top of.
+
+464
+00:19:20,000 --> 00:19:22,000
+Which I just had one of those this week
+
+465
+00:19:22,000 --> 00:19:24,000
+for the Lowell George
+
+466
+00:19:24,000 --> 00:19:26,000
+where he had a stereo
+
+467
+00:19:28,000 --> 00:19:30,000
+he had a bunch of stereo mixes
+
+468
+00:19:30,000 --> 00:19:32,000
+that were instrumental.
+
+469
+00:19:32,000 --> 00:19:34,000
+And then
+
+470
+00:19:34,000 --> 00:19:36,000
+he recorded Opals
+
+471
+00:19:36,000 --> 00:19:38,000
+on his quarter track
+
+472
+00:19:38,000 --> 00:19:40,000
+over the stereo tape.
+
+473
+00:19:40,000 --> 00:19:42,000
+And I had no idea what the hell was going on
+
+474
+00:19:42,000 --> 00:19:44,000
+and then I put the Arnold on it
+
+475
+00:19:44,000 --> 00:19:46,000
+and saw like, okay, it's stereo up to here
+
+476
+00:19:46,000 --> 00:19:48,000
+and then he hit record
+
+477
+00:19:48,000 --> 00:19:50,000
+on the quarter track and then
+
+478
+00:19:50,000 --> 00:19:52,000
+you had the two little tracks
+
+479
+00:19:52,000 --> 00:19:54,000
+so one and four were
+
+480
+00:19:54,000 --> 00:19:56,000
+from the original stereo
+
+481
+00:19:56,000 --> 00:19:58,000
+and two and three were the vocals.
+
+482
+00:19:58,000 --> 00:20:00,000
+And it's hard to figure these things out
+
+483
+00:20:00,000 --> 00:20:02,000
+but I got one recently
+
+484
+00:20:02,000 --> 00:20:04,000
+when there was some backwards guitar on it
+
+485
+00:20:04,000 --> 00:20:06,000
+and I was like, ooh, this is psychedelic, I like it.
+
+486
+00:20:06,000 --> 00:20:08,000
+This is just backwards.
+
+487
+00:20:08,000 --> 00:20:10,000
+And then I sent it and they were like,
+
+488
+00:20:10,000 --> 00:20:12,000
+that guitar's not supposed to be fast.
+
+489
+00:20:12,000 --> 00:20:14,000
+But nothing about it indicated
+
+490
+00:20:14,000 --> 00:20:16,000
+that it would have been recorded in both directions
+
+491
+00:20:16,000 --> 00:20:18,000
+just wasn't graced.
+
+492
+00:20:18,000 --> 00:20:20,000
+But I think that there's
+
+493
+00:20:20,000 --> 00:20:22,000
+many times when you're like listening to the music
+
+494
+00:20:22,000 --> 00:20:24,000
+and you're like, is this psychedelic
+
+495
+00:20:24,000 --> 00:20:26,000
+or is this wrong?
+
+496
+00:20:26,000 --> 00:20:28,000
+It's parallel music
+
+497
+00:20:28,000 --> 00:20:30,000
+is the same way, is it backwards?
+
+498
+00:20:30,000 --> 00:20:32,000
+Is it supposed to be backwards? Is it 15
+
+499
+00:20:32,000 --> 00:20:34,000
+or 7 and a half?
+
+500
+00:20:34,000 --> 00:20:36,000
+You don't know.
+
+501
+00:20:36,000 --> 00:20:38,000
+Well the Arnold viewer is without question
+
+502
+00:20:38,000 --> 00:20:40,000
+the most fun thing that we get to play with.
+
+503
+00:20:40,000 --> 00:20:42,000
+Yeah.
+
+504
+00:20:42,000 --> 00:20:44,000
+Any other questions?
+
+505
+00:20:44,000 --> 00:20:46,000
+I had
+
+506
+00:20:46,000 --> 00:20:48,000
+the quarter of the half
+
+507
+00:20:48,000 --> 00:20:50,000
+at the other end.
+
+508
+00:20:50,000 --> 00:20:52,000
+It was, um, yeah
+
+509
+00:20:52,000 --> 00:20:54,000
+it kind of got a little weird
+
+510
+00:20:54,000 --> 00:20:56,000
+but yeah
+
+511
+00:20:56,000 --> 00:20:58,000
+a lot of those tapes had a play.
+
+512
+00:20:58,000 --> 00:21:00,000
+Different formats
+
+513
+00:21:00,000 --> 00:21:02,000
+different speeds
+
+514
+00:21:02,000 --> 00:21:04,000
+different directions all in the same rhythm
+
+515
+00:21:04,000 --> 00:21:06,000
+and nothing was done.
+
+516
+00:21:06,000 --> 00:21:08,000
+So it's just
+
+517
+00:21:08,000 --> 00:21:10,000
+random, like I'll put up a tape
+
+518
+00:21:10,000 --> 00:21:12,000
+and there's no box, there's no nothing
+
+519
+00:21:12,000 --> 00:21:14,000
+there's nothing written on the flange
+
+520
+00:21:14,000 --> 00:21:16,000
+and put it up and just
+
+521
+00:21:16,000 --> 00:21:18,000
+see what's on there.
+
+522
+00:21:18,000 --> 00:21:20,000
+And then you have to go through the hole
+
+523
+00:21:20,000 --> 00:21:22,000
+to 2,500 feet of tape
+
+524
+00:21:22,000 --> 00:21:24,000
+and figure out, like, okay
+
+525
+00:21:24,000 --> 00:21:26,000
+the quarter track stops here
+
+526
+00:21:26,000 --> 00:21:28,000
+and then it switches over to 15 of stereo
+
+527
+00:21:28,000 --> 00:21:30,000
+and it goes over to 7 and a half inch
+
+528
+00:21:30,000 --> 00:21:32,000
+4-track
+
+529
+00:21:32,000 --> 00:21:34,000
+It's fun. Sometimes I'll even
+
+530
+00:21:34,000 --> 00:21:36,000
+let this record the whole thing
+
+531
+00:21:36,000 --> 00:21:38,000
+and just look at the waveform
+
+532
+00:21:38,000 --> 00:21:40,000
+and it's okay to give an idea
+
+533
+00:21:40,000 --> 00:21:42,000
+of what has happened
+
+534
+00:21:42,000 --> 00:21:44,000
+because I'll get some of those weird tapes
+
+535
+00:21:44,000 --> 00:21:46,000
+and you can see
+
+536
+00:21:46,000 --> 00:21:48,000
+you can hear the level differences
+
+537
+00:21:48,000 --> 00:21:50,000
+and sometimes there's a weird phase that's going on
+
+538
+00:21:52,000 --> 00:21:54,000
+I pulled up some photos
+
+539
+00:21:54,000 --> 00:21:56,000
+that Catherine sent me
+
+540
+00:21:56,000 --> 00:21:58,000
+so there's a little video here
+
+541
+00:21:58,000 --> 00:22:00,000
+Well, you know what you can talk about first
+
+542
+00:22:00,000 --> 00:22:02,000
+because I think this goes along, I'm at documentation
+
+543
+00:22:02,000 --> 00:22:04,000
+if you're lucky you get
+
+544
+00:22:04,000 --> 00:22:06,000
+a tape box with something written on it
+
+545
+00:22:06,000 --> 00:22:08,000
+most of the time you don't have that
+
+546
+00:22:08,000 --> 00:22:10,000
+or what's written on it is vague
+
+547
+00:22:10,000 --> 00:22:12,000
+or incorrect
+
+548
+00:22:12,000 --> 00:22:14,000
+so if you talk about this project a little bit
+
+549
+00:22:14,000 --> 00:22:16,000
+can you see what it is?
+
+550
+00:22:16,000 --> 00:22:18,000
+Yeah, I actually can't see which tape that is
+
+551
+00:22:20,000 --> 00:22:22,000
+Which one does it take?
+
+552
+00:22:22,000 --> 00:22:24,000
+Is it free of mind?
+
+553
+00:22:24,000 --> 00:22:26,000
+No, it's perfect
+
+554
+00:22:26,000 --> 00:22:28,000
+So we were doing
+
+555
+00:22:28,000 --> 00:22:30,000
+the Westconn collection
+
+556
+00:22:30,000 --> 00:22:32,000
+We didn't have all of the original masters
+
+557
+00:22:32,000 --> 00:22:34,000
+obviously
+
+558
+00:22:34,000 --> 00:22:36,000
+We didn't have
+
+559
+00:22:36,000 --> 00:22:38,000
+a bunch of safety copies
+
+560
+00:22:38,000 --> 00:22:40,000
+and a bunch of Dolby safety copies
+
+561
+00:22:40,000 --> 00:22:42,000
+These were
+
+562
+00:22:42,000 --> 00:22:44,000
+pretty quickly copied
+
+563
+00:22:44,000 --> 00:22:46,000
+during what I'm assuming
+
+564
+00:22:46,000 --> 00:22:48,000
+some sort of legal battle
+
+565
+00:22:48,000 --> 00:22:50,000
+of Westconn
+
+566
+00:22:50,000 --> 00:22:52,000
+and they went I think to
+
+567
+00:22:52,000 --> 00:22:54,000
+Memphis or Nashville then went to Canada
+
+568
+00:22:54,000 --> 00:22:56,000
+and whoever batch copied
+
+569
+00:22:56,000 --> 00:22:58,000
+all of these
+
+570
+00:22:58,000 --> 00:23:00,000
+put batch tones on
+
+571
+00:23:00,000 --> 00:23:02,000
+so there was a batch Dolby tone
+
+572
+00:23:02,000 --> 00:23:04,000
+batch 1k, batch 10k
+
+573
+00:23:04,000 --> 00:23:06,000
+They're just copy and paste on
+
+574
+00:23:06,000 --> 00:23:08,000
+Yes, so they
+
+575
+00:23:08,000 --> 00:23:10,000
+went to figure this out as you can imagine
+
+576
+00:23:10,000 --> 00:23:12,000
+because we were playing around with some of these tapes
+
+577
+00:23:12,000 --> 00:23:14,000
+and going like this sounds really
+
+578
+00:23:14,000 --> 00:23:16,000
+This is really right
+
+579
+00:23:16,000 --> 00:23:18,000
+or it just sounds wrong or weird
+
+580
+00:23:18,000 --> 00:23:20,000
+So obviously there's a Dolby tone
+
+581
+00:23:20,000 --> 00:23:22,000
+I don't know if you're assuming that there's Dolby
+
+582
+00:23:22,000 --> 00:23:24,000
+So this would have been in late 60s or early 70s
+
+583
+00:23:24,000 --> 00:23:26,000
+this is Dolby A which is what we're seeing here
+
+584
+00:23:26,000 --> 00:23:28,000
+So
+
+585
+00:23:28,000 --> 00:23:30,000
+it took us
+
+586
+00:23:30,000 --> 00:23:32,000
+I don't know how many tapes
+
+587
+00:23:32,000 --> 00:23:34,000
+maybe four or five but we realized
+
+588
+00:23:34,000 --> 00:23:36,000
+that all the tapes that looked like this
+
+589
+00:23:36,000 --> 00:23:38,000
+in 1975 on them
+
+590
+00:23:38,000 --> 00:23:40,000
+were batch printed
+
+591
+00:23:40,000 --> 00:23:42,000
+So
+
+592
+00:23:42,000 --> 00:23:44,000
+we had to figure out what was Dolby
+
+593
+00:23:44,000 --> 00:23:46,000
+what wasn't Dolby, what tones were correct
+
+594
+00:23:46,000 --> 00:23:48,000
+and what weren't correct
+
+595
+00:23:48,000 --> 00:23:50,000
+So some of the tapes had a Dolby tone
+
+596
+00:23:50,000 --> 00:23:52,000
+but weren't Dolby tapes
+
+597
+00:23:52,000 --> 00:23:54,000
+Some of the tapes were Dolby tapes
+
+598
+00:23:54,000 --> 00:23:56,000
+that had an incorrect level of Dolby tone on them
+
+599
+00:23:56,000 --> 00:23:58,000
+So what we ended up doing
+
+600
+00:23:58,000 --> 00:24:00,000
+was adjusting Dolby by ear
+
+601
+00:24:00,000 --> 00:24:02,000
+which was
+
+602
+00:24:02,000 --> 00:24:04,000
+white
+
+603
+00:24:04,000 --> 00:24:06,000
+and then just sort of
+
+604
+00:24:06,000 --> 00:24:08,000
+moving everything into
+
+605
+00:24:08,000 --> 00:24:10,000
+a place where it sounded
+
+606
+00:24:10,000 --> 00:24:12,000
+like it was supposed to sound
+
+607
+00:24:12,000 --> 00:24:14,000
+at least that we thought
+
+608
+00:24:14,000 --> 00:24:16,000
+So this is definitely an exercise
+
+609
+00:24:16,000 --> 00:24:18,000
+in what's okay to do
+
+610
+00:24:18,000 --> 00:24:20,000
+and what's not okay to do
+
+611
+00:24:20,000 --> 00:24:22,000
+in a general issue project like this
+
+612
+00:24:22,000 --> 00:24:24,000
+I'm super lucky to have Dave
+
+613
+00:24:24,000 --> 00:24:26,000
+with me, Dick Burns
+
+614
+00:24:26,000 --> 00:24:28,000
+who's a master major in this project
+
+615
+00:24:28,000 --> 00:24:30,000
+who knows these records really well
+
+616
+00:24:30,000 --> 00:24:32,000
+go like, ah this sounds really weird
+
+617
+00:24:32,000 --> 00:24:34,000
+So yeah, we sort of had
+
+618
+00:24:34,000 --> 00:24:36,000
+a backtrack through these reels
+
+619
+00:24:36,000 --> 00:24:38,000
+figure out which ones
+
+620
+00:24:38,000 --> 00:24:40,000
+had Dolby
+
+621
+00:24:40,000 --> 00:24:42,000
+and which ones didn't
+
+622
+00:24:42,000 --> 00:24:44,000
+So that was fun
+
+623
+00:24:44,000 --> 00:24:46,000
+and we didn't have a lot of time
+
+624
+00:24:46,000 --> 00:24:48,000
+so I think that's what we're seeing here
+
+625
+00:24:48,000 --> 00:24:50,000
+right?
+
+626
+00:24:50,000 --> 00:24:52,000
+Yeah, we never have enough time
+
+627
+00:24:52,000 --> 00:24:54,000
+which it's our never been on
+
+628
+00:24:54,000 --> 00:24:56,000
+Best question on that
+
+629
+00:24:56,000 --> 00:24:58,000
+So if you
+
+630
+00:24:58,000 --> 00:25:00,000
+are playing that at the tape
+
+631
+00:25:00,000 --> 00:25:02,000
+but you don't have a machine that
+
+632
+00:25:02,000 --> 00:25:04,000
+replicated or you don't have an hardware
+
+633
+00:25:04,000 --> 00:25:06,000
+to replicate, how would you be playing that
+
+634
+00:25:06,000 --> 00:25:08,000
+what's your like best practice?
+
+635
+00:25:08,000 --> 00:25:10,000
+If you're asking me personally
+
+636
+00:25:10,000 --> 00:25:12,000
+I would call somebody who has that
+
+637
+00:25:12,000 --> 00:25:14,000
+because
+
+638
+00:25:14,000 --> 00:25:16,000
+there are some plugins that do some
+
+639
+00:25:16,000 --> 00:25:18,000
+Dolby
+
+640
+00:25:18,000 --> 00:25:20,000
+Yeah, but it's
+
+641
+00:25:20,000 --> 00:25:22,000
+DDS usually
+
+642
+00:25:24,000 --> 00:25:26,000
+I haven't fussed with any of that
+
+643
+00:25:26,000 --> 00:25:28,000
+because I have all the Dolby
+
+644
+00:25:28,000 --> 00:25:30,000
+that I can use
+
+645
+00:25:30,000 --> 00:25:32,000
+or I know somebody who doesn't have that
+
+646
+00:25:32,000 --> 00:25:34,000
+but, you know, if it's
+
+647
+00:25:34,000 --> 00:25:36,000
+got Dolby, if it's Dolby encoded
+
+648
+00:25:36,000 --> 00:25:38,000
+and it's playback without Dolby decoding
+
+649
+00:25:38,000 --> 00:25:40,000
+it's just going to sound
+
+650
+00:25:40,000 --> 00:25:42,000
+really weird
+
+651
+00:25:42,000 --> 00:25:44,000
+and if you're trying to EQ around that
+
+652
+00:25:44,000 --> 00:25:46,000
+you're just going to have more problems
+
+653
+00:25:46,000 --> 00:25:48,000
+so I wouldn't recommend
+
+654
+00:25:48,000 --> 00:25:50,000
+doing it, but hopefully
+
+655
+00:25:50,000 --> 00:25:52,000
+I would agree with that
+
+656
+00:25:52,000 --> 00:25:54,000
+the Dolby is a much harder nut
+
+657
+00:25:54,000 --> 00:25:56,000
+to crack as far as a plugin
+
+658
+00:25:56,000 --> 00:25:58,000
+for DBX
+
+659
+00:25:58,000 --> 00:26:00,000
+it's not perfect, but I've used
+
+660
+00:26:00,000 --> 00:26:02,000
+a company called UEE
+
+661
+00:26:02,000 --> 00:26:04,000
+and I have a thing called Satin
+
+662
+00:26:04,000 --> 00:26:06,000
+so we're down the bottom
+
+663
+00:26:06,000 --> 00:26:08,000
+there's a little DBX
+
+664
+00:26:08,000 --> 00:26:10,000
+it's close enough, you'll know it's DBX
+
+665
+00:26:10,000 --> 00:26:12,000
+and I've had really good results with it
+
+666
+00:26:12,000 --> 00:26:14,000
+I've used one for DBX
+
+667
+00:26:14,000 --> 00:26:16,000
+I can't remember which one it was
+
+668
+00:26:16,000 --> 00:26:18,000
+it was like Silk or Satin
+
+669
+00:26:18,000 --> 00:26:20,000
+Yeah, yeah, yeah, I was like
+
+670
+00:26:20,000 --> 00:26:22,000
+I wasn't listening but I was like
+
+671
+00:26:22,000 --> 00:26:24,000
+it's been a long day
+
+672
+00:26:24,000 --> 00:26:26,000
+there's not a lot of that tape
+
+673
+00:26:26,000 --> 00:26:28,000
+should be among other formats
+
+674
+00:26:28,000 --> 00:26:30,000
+I have another tape photo
+
+675
+00:26:30,000 --> 00:26:32,000
+but after tape we get into
+
+676
+00:26:32,000 --> 00:26:34,000
+oh here's a nice picture
+
+677
+00:26:34,000 --> 00:26:36,000
+for those of you who read the graphic
+
+678
+00:26:36,000 --> 00:26:38,000
+reform, this is actually two clips
+
+679
+00:26:38,000 --> 00:26:40,000
+of the same music, the left clip
+
+680
+00:26:40,000 --> 00:26:42,000
+it's my
+
+681
+00:26:42,000 --> 00:26:44,000
+expasmeth and the right
+
+682
+00:26:44,000 --> 00:26:46,000
+the asmuth is off
+
+683
+00:26:46,000 --> 00:26:48,000
+and you can hear
+
+684
+00:26:48,000 --> 00:26:50,000
+imagine what it sounds like
+
+685
+00:26:50,000 --> 00:26:52,000
+I didn't put any audio on this
+
+686
+00:26:52,000 --> 00:26:54,000
+all these artists who had terrible recordings
+
+687
+00:26:54,000 --> 00:26:56,000
+I had to fix it
+
+688
+00:26:56,000 --> 00:26:58,000
+it's so dramatic
+
+689
+00:26:58,000 --> 00:27:00,000
+and I felt like
+
+690
+00:27:00,000 --> 00:27:02,000
+visually it's really compelling to see
+
+691
+00:27:02,000 --> 00:27:04,000
+what you're missing
+
+692
+00:27:04,000 --> 00:27:06,000
+when your asmuth is not
+
+693
+00:27:06,000 --> 00:27:08,000
+horny properly
+
+694
+00:27:08,000 --> 00:27:10,000
+so I don't know
+
+695
+00:27:10,000 --> 00:27:12,000
+asmuth
+
+696
+00:27:14,000 --> 00:27:16,000
+anyone want to talk about
+
+697
+00:27:16,000 --> 00:27:18,000
+the joy of
+
+698
+00:27:18,000 --> 00:27:20,000
+um
+
+699
+00:27:20,000 --> 00:27:22,000
+well yeah, when I said that the asmuth
+
+700
+00:27:22,000 --> 00:27:24,000
+is not correct
+
+701
+00:27:24,000 --> 00:27:26,000
+a load of problems
+
+702
+00:27:26,000 --> 00:27:28,000
+especially like the muddy sound
+
+703
+00:27:28,000 --> 00:27:30,000
+or everything kind of like
+
+704
+00:27:30,000 --> 00:27:32,000
+as you open up the asmuth
+
+705
+00:27:32,000 --> 00:27:34,000
+you get in the right spot
+
+706
+00:27:34,000 --> 00:27:36,000
+that's why I look full track
+
+707
+00:27:36,000 --> 00:27:38,000
+not up
+
+708
+00:27:38,000 --> 00:27:40,000
+because it's just
+
+709
+00:27:40,000 --> 00:27:42,000
+get the high end as high as possible
+
+710
+00:27:42,000 --> 00:27:44,000
+and you're good
+
+711
+00:27:44,000 --> 00:27:46,000
+how do you adjust it by ear
+
+712
+00:27:46,000 --> 00:27:48,000
+with stereo
+
+713
+00:27:48,000 --> 00:27:50,000
+with mono
+
+714
+00:27:50,000 --> 00:27:52,000
+with stereo I'll
+
+715
+00:27:52,000 --> 00:27:54,000
+sum the stereo image
+
+716
+00:27:54,000 --> 00:27:56,000
+to mono
+
+717
+00:27:56,000 --> 00:27:58,000
+and then I'll go with the high end
+
+718
+00:27:58,000 --> 00:28:00,000
+if the high end is not
+
+719
+00:28:00,000 --> 00:28:02,000
+if it's not
+
+720
+00:28:02,000 --> 00:28:04,000
+getting correct
+
+721
+00:28:04,000 --> 00:28:06,000
+I will phase on one of the channels
+
+722
+00:28:06,000 --> 00:28:08,000
+and I will try and make the bass disappear
+
+723
+00:28:10,000 --> 00:28:12,000
+it's similar to what like if it's music with vocals
+
+724
+00:28:12,000 --> 00:28:14,000
+I'm trying to get it just
+
+725
+00:28:14,000 --> 00:28:16,000
+I don't know about the stereo
+
+726
+00:28:16,000 --> 00:28:18,000
+you know you're somewhere in the middle
+
+727
+00:28:18,000 --> 00:28:20,000
+some of the audio recordings
+
+728
+00:28:20,000 --> 00:28:22,000
+it's really hard because they can't do everything
+
+729
+00:28:22,000 --> 00:28:24,000
+hard loud and hard right so there's no center material
+
+730
+00:28:24,000 --> 00:28:26,000
+if it's mono
+
+731
+00:28:26,000 --> 00:28:28,000
+I'm just
+
+732
+00:28:28,000 --> 00:28:30,000
+going off 10k
+
+733
+00:28:30,000 --> 00:28:32,000
+adjusting asmuth until 10k
+
+734
+00:28:32,000 --> 00:28:34,000
+is really like
+
+735
+00:28:34,000 --> 00:28:36,000
+it'll go up
+
+736
+00:28:36,000 --> 00:28:38,000
+hit at the top point
+
+737
+00:28:38,000 --> 00:28:40,000
+and it'll start coming down so
+
+738
+00:28:40,000 --> 00:28:42,000
+when you're adjusting for bias
+
+739
+00:28:42,000 --> 00:28:44,000
+that peak is
+
+740
+00:28:44,000 --> 00:28:46,000
+pretty much where your asmuth should be
+
+741
+00:28:46,000 --> 00:28:48,000
+at least in my experience
+
+742
+00:28:48,000 --> 00:28:50,000
+or if you have a mono master take
+
+743
+00:28:50,000 --> 00:28:52,000
+that has different mono
+
+744
+00:28:52,000 --> 00:28:54,000
+stuff attracted to different studios
+
+745
+00:28:54,000 --> 00:28:56,000
+then you just kind of have to
+
+746
+00:28:56,000 --> 00:28:58,000
+adjust your
+
+747
+00:28:58,000 --> 00:29:00,000
+your asmuth to where it's
+
+748
+00:29:00,000 --> 00:29:02,000
+kind of the crispiest I guess
+
+749
+00:29:02,000 --> 00:29:04,000
+so you have to sort of do it on the fly
+
+750
+00:29:04,000 --> 00:29:06,000
+or you have to do each song individually
+
+751
+00:29:06,000 --> 00:29:08,000
+yeah I mean yeah
+
+752
+00:29:08,000 --> 00:29:10,000
+and if your tape is you know
+
+753
+00:29:10,000 --> 00:29:12,000
+the shape that's what it gets
+
+754
+00:29:12,000 --> 00:29:14,000
+what else is it going to get
+
+755
+00:29:14,000 --> 00:29:16,000
+questions
+
+756
+00:29:18,000 --> 00:29:20,000
+best storage
+
+757
+00:29:20,000 --> 00:29:22,000
+tape
+
+758
+00:29:22,000 --> 00:29:24,000
+where is the storage
+
+759
+00:29:24,000 --> 00:29:26,000
+how do I store the tape
+
+760
+00:29:26,000 --> 00:29:28,000
+tape
+
+761
+00:29:28,000 --> 00:29:30,000
+what humans like
+
+762
+00:29:30,000 --> 00:29:32,000
+you want something not a lot of human
+
+763
+00:29:32,000 --> 00:29:34,000
+not a lot of humidity and not a lot of heat
+
+764
+00:29:34,000 --> 00:29:36,000
+there's a storage
+
+765
+00:29:36,000 --> 00:29:38,000
+facility in hollywood called hollywood vault
+
+766
+00:29:38,000 --> 00:29:40,000
+they keep
+
+767
+00:29:40,000 --> 00:29:42,000
+all their tapes at 45 degrees
+
+768
+00:29:42,000 --> 00:29:44,000
+Fahrenheit and 18 degrees
+
+769
+00:29:44,000 --> 00:29:46,000
+humidity or 18% humidity
+
+770
+00:29:46,000 --> 00:29:48,000
+you have to wear a parka
+
+771
+00:29:48,000 --> 00:29:50,000
+when you go in there and tell them to get your tapes
+
+772
+00:29:50,000 --> 00:29:52,000
+that is one of the best facilities
+
+773
+00:29:52,000 --> 00:29:54,000
+I've seen so far
+
+774
+00:29:54,000 --> 00:29:56,000
+as far as tape storage
+
+775
+00:29:56,000 --> 00:29:58,000
+but low humidity, low temperature
+
+776
+00:29:58,000 --> 00:30:00,000
+yeah for the lame I'm like
+
+777
+00:30:00,000 --> 00:30:02,000
+keep them a bright
+
+778
+00:30:02,000 --> 00:30:04,000
+dry
+
+779
+00:30:04,000 --> 00:30:06,000
+not hot
+
+780
+00:30:06,000 --> 00:30:08,000
+in the sun
+
+781
+00:30:08,000 --> 00:30:10,000
+and outside the major house
+
+782
+00:30:10,000 --> 00:30:12,000
+we've used fine art storage
+
+783
+00:30:12,000 --> 00:30:14,000
+and wine storage
+
+784
+00:30:14,000 --> 00:30:16,000
+which also works
+
+785
+00:30:16,000 --> 00:30:18,000
+cool and low humidity
+
+786
+00:30:18,000 --> 00:30:20,000
+upright on reels
+
+787
+00:30:20,000 --> 00:30:22,000
+or
+
+788
+00:30:22,000 --> 00:30:24,000
+downward facing on pancakes
+
+789
+00:30:28,000 --> 00:30:30,000
+I would go upright on reels
+
+790
+00:30:30,000 --> 00:30:32,000
+yeah
+
+791
+00:30:32,000 --> 00:30:34,000
+yeah pancakes
+
+792
+00:30:34,000 --> 00:30:36,000
+I would
+
+793
+00:30:36,000 --> 00:30:38,000
+downward on pancakes
+
+794
+00:30:38,000 --> 00:30:40,000
+I think you're correct on that
+
+795
+00:30:40,000 --> 00:30:42,000
+which of the two
+
+796
+00:30:42,000 --> 00:30:44,000
+do you like pancakes, do you like reels
+
+797
+00:30:44,000 --> 00:30:46,000
+I like reels
+
+798
+00:30:46,000 --> 00:30:48,000
+no one wants pancakes
+
+799
+00:30:48,000 --> 00:30:50,000
+pop the center out on pancake and you'll prick the heap
+
+800
+00:30:50,000 --> 00:30:52,000
+it's a whole day
+
+801
+00:30:52,000 --> 00:30:54,000
+I always take the boxes with me
+
+802
+00:30:54,000 --> 00:30:56,000
+I take the boxes with console dates
+
+803
+00:30:56,000 --> 00:30:58,000
+and I write notes on engines
+
+804
+00:30:58,000 --> 00:31:00,000
+just for future, that's my gift to the future
+
+805
+00:31:00,000 --> 00:31:02,000
+my favorite
+
+806
+00:31:02,000 --> 00:31:04,000
+you get a lot of tapes
+
+807
+00:31:04,000 --> 00:31:06,000
+like 50-60 tapes
+
+808
+00:31:06,000 --> 00:31:08,000
+and they're all
+
+809
+00:31:08,000 --> 00:31:10,000
+flanged
+
+810
+00:31:10,000 --> 00:31:12,000
+and then you use the process
+
+811
+00:31:12,000 --> 00:31:14,000
+and then you put the box open and it's like a pancake
+
+812
+00:31:14,000 --> 00:31:16,000
+I don't know where it's like
+
+813
+00:31:16,000 --> 00:31:18,000
+it just explodes
+
+814
+00:31:18,000 --> 00:31:20,000
+pancakes are one right now
+
+815
+00:31:20,000 --> 00:31:22,000
+it's not one that's true, it's spicy
+
+816
+00:31:22,000 --> 00:31:24,000
+yeah I had some
+
+817
+00:31:24,000 --> 00:31:26,000
+a European hub
+
+818
+00:31:26,000 --> 00:31:28,000
+oh it's on the DIN
+
+819
+00:31:28,000 --> 00:31:30,000
+we got an active agent
+
+820
+00:31:30,000 --> 00:31:32,000
+I had some pancakes
+
+821
+00:31:32,000 --> 00:31:34,000
+shipped to me
+
+822
+00:31:34,000 --> 00:31:36,000
+that were in a film container
+
+823
+00:31:36,000 --> 00:31:38,000
+it was three reels
+
+824
+00:31:38,000 --> 00:31:40,000
+stacked on top of each other
+
+825
+00:31:40,000 --> 00:31:42,000
+and
+
+826
+00:31:42,000 --> 00:31:44,000
+a film container
+
+827
+00:31:44,000 --> 00:31:46,000
+that was probably a half inch too high
+
+828
+00:31:46,000 --> 00:31:48,000
+for them
+
+829
+00:31:48,000 --> 00:31:50,000
+so in shipping
+
+830
+00:31:50,000 --> 00:31:52,000
+and the ends weren't really as secure
+
+831
+00:31:52,000 --> 00:31:54,000
+and properly
+
+832
+00:31:54,000 --> 00:31:56,000
+so I opened up a thing and it was just spaghetti tape
+
+833
+00:31:56,000 --> 00:31:58,000
+and I had three reels that I had
+
+834
+00:31:58,000 --> 00:32:00,000
+to kind of untangle from each other
+
+835
+00:32:00,000 --> 00:32:02,000
+and I think that took me about three days
+
+836
+00:32:02,000 --> 00:32:04,000
+to get through
+
+837
+00:32:04,000 --> 00:32:06,000
+and yes
+
+838
+00:32:06,000 --> 00:32:08,000
+I don't bring any more
+
+839
+00:32:08,000 --> 00:32:10,000
+I think I'm traumatized
+
+840
+00:32:10,000 --> 00:32:12,000
+I'm working on a collection right now that's all
+
+841
+00:32:12,000 --> 00:32:14,000
+two quarter inch pancakes
+
+842
+00:32:14,000 --> 00:32:16,000
+and one quarter inch box
+
+843
+00:32:16,000 --> 00:32:18,000
+and they're very scared to go up there every time
+
+844
+00:32:22,000 --> 00:32:24,000
+you want to talk about discs a little bit
+
+845
+00:32:24,000 --> 00:32:26,000
+I got some broken disc pictures
+
+846
+00:32:26,000 --> 00:32:28,000
+from the beer here
+
+847
+00:32:28,000 --> 00:32:30,000
+oh yeah this was just to show that
+
+848
+00:32:30,000 --> 00:32:32,000
+even like especially glass discs
+
+849
+00:32:32,000 --> 00:32:34,000
+which kind of came in in the mid 40s
+
+850
+00:32:34,000 --> 00:32:36,000
+that even if they crack
+
+851
+00:32:36,000 --> 00:32:38,000
+and kind of fall apart
+
+852
+00:32:38,000 --> 00:32:40,000
+you can actually really easily
+
+853
+00:32:40,000 --> 00:32:42,000
+as long as there's no
+
+854
+00:32:42,000 --> 00:32:44,000
+none of the laminates chipped off
+
+855
+00:32:44,000 --> 00:32:46,000
+or there's no big chips in it
+
+856
+00:32:46,000 --> 00:32:48,000
+like you can't get a stylus to track through them
+
+857
+00:32:48,000 --> 00:32:50,000
+and if you use something like
+
+858
+00:32:50,000 --> 00:32:52,000
+RX you can get all the pops out
+
+859
+00:32:52,000 --> 00:32:54,000
+and it'll sound pretty great
+
+860
+00:32:54,000 --> 00:32:56,000
+really good at doing that
+
+861
+00:32:56,000 --> 00:32:58,000
+you don't need like a magnifying glass
+
+862
+00:32:58,000 --> 00:33:00,000
+or a microscope
+
+863
+00:33:00,000 --> 00:33:02,000
+to kind of get your grooves lined up
+
+864
+00:33:02,000 --> 00:33:04,000
+let me be a little rough on your stylus
+
+865
+00:33:04,000 --> 00:33:06,000
+but
+
+866
+00:33:06,000 --> 00:33:08,000
+it's definitely doable
+
+867
+00:33:08,000 --> 00:33:10,000
+do you have to crank up the tracking force
+
+868
+00:33:10,000 --> 00:33:12,000
+to get it?
+
+869
+00:33:12,000 --> 00:33:14,000
+yeah with these coarse group discs
+
+870
+00:33:14,000 --> 00:33:16,000
+I usually have like almost
+
+871
+00:33:16,000 --> 00:33:18,000
+three grams of tracking weight anyway
+
+872
+00:33:18,000 --> 00:33:20,000
+so that will definitely get you to track through
+
+873
+00:33:20,000 --> 00:33:22,000
+but sometimes you definitely need to
+
+874
+00:33:22,000 --> 00:33:24,000
+I know it's super dangerous
+
+875
+00:33:24,000 --> 00:33:26,000
+and risky but I have you super good
+
+876
+00:33:26,000 --> 00:33:28,000
+a bunch of laminates
+
+877
+00:33:28,000 --> 00:33:30,000
+just the beam just right
+
+878
+00:33:30,000 --> 00:33:32,000
+but you don't want it to squeeze out on the grooves
+
+879
+00:33:32,000 --> 00:33:34,000
+but I do that
+
+880
+00:33:34,000 --> 00:33:36,000
+do a lot of artist tape
+
+881
+00:33:36,000 --> 00:33:38,000
+and like do the distance sections
+
+882
+00:33:38,000 --> 00:33:40,000
+okay
+
+883
+00:33:44,000 --> 00:33:46,000
+here's some pretty ones
+
+884
+00:33:46,000 --> 00:33:48,000
+you guys want to talk about
+
+885
+00:33:48,000 --> 00:33:50,000
+so the first one
+
+886
+00:33:50,000 --> 00:33:52,000
+the first one is
+
+887
+00:33:52,000 --> 00:33:54,000
+essentially unplayable
+
+888
+00:33:54,000 --> 00:33:56,000
+like as soon as you put a stylus on it
+
+889
+00:33:56,000 --> 00:33:58,000
+that's the delamination
+
+890
+00:33:58,000 --> 00:34:00,000
+that's because the substrate stays
+
+891
+00:34:00,000 --> 00:34:02,000
+the same size and then the lacquer will shrink
+
+892
+00:34:02,000 --> 00:34:04,000
+and then
+
+893
+00:34:04,000 --> 00:34:06,000
+as soon as you put a needle on it
+
+894
+00:34:06,000 --> 00:34:08,000
+it'll just pull up every piece of that
+
+895
+00:34:08,000 --> 00:34:10,000
+of the laminate off the lacquer
+
+896
+00:34:10,000 --> 00:34:12,000
+off of it
+
+897
+00:34:12,000 --> 00:34:14,000
+but if you have like this only half
+
+898
+00:34:14,000 --> 00:34:16,000
+delaminated
+
+899
+00:34:16,000 --> 00:34:18,000
+you can definitely get those grooves
+
+900
+00:34:18,000 --> 00:34:20,000
+but
+
+901
+00:34:20,000 --> 00:34:22,000
+you don't want to wash
+
+902
+00:34:22,000 --> 00:34:24,000
+even if it's really dirty this might be exuded when next to it
+
+903
+00:34:24,000 --> 00:34:26,000
+you want to do a pass
+
+904
+00:34:26,000 --> 00:34:28,000
+before you wash it
+
+905
+00:34:28,000 --> 00:34:30,000
+just because you're going to probably
+
+906
+00:34:30,000 --> 00:34:32,000
+pull up some lacquer to wash it
+
+907
+00:34:32,000 --> 00:34:34,000
+or get water under the lacquer
+
+908
+00:34:34,000 --> 00:34:36,000
+which is very tight
+
+909
+00:34:36,000 --> 00:34:38,000
+yeah then that's on the right
+
+910
+00:34:38,000 --> 00:34:40,000
+that's an exuded this
+
+911
+00:34:40,000 --> 00:34:42,000
+that happens to lacquers after time
+
+912
+00:34:42,000 --> 00:34:44,000
+not all of them
+
+913
+00:34:44,000 --> 00:34:46,000
+but it's basically the
+
+914
+00:34:46,000 --> 00:34:48,000
+the fatty acids like
+
+915
+00:34:48,000 --> 00:34:50,000
+scaric and pulmonary acid
+
+916
+00:34:50,000 --> 00:34:52,000
+so it's just like kind of a grease
+
+917
+00:34:52,000 --> 00:34:54,000
+that's on there but if you wash it with
+
+918
+00:34:54,000 --> 00:34:56,000
+a light solution
+
+919
+00:34:56,000 --> 00:34:58,000
+and then maybe 1% ammonia
+
+920
+00:34:58,000 --> 00:35:00,000
+it'll be like branded once you wash it
+
+921
+00:35:04,000 --> 00:35:06,000
+I've got work with this a lot also
+
+922
+00:35:06,000 --> 00:35:08,000
+I've been using formula
+
+923
+00:35:08,000 --> 00:35:10,000
+I don't have it on here but I got it from the Canadian Library
+
+924
+00:35:10,000 --> 00:35:12,000
+about 25 years ago
+
+925
+00:35:12,000 --> 00:35:14,000
+it's a little bit of a turning tool
+
+926
+00:35:14,000 --> 00:35:16,000
+it's a niacervicant
+
+927
+00:35:18,000 --> 00:35:20,000
+and it just wipes the stuff right off
+
+928
+00:35:20,000 --> 00:35:22,000
+it's pretty great
+
+929
+00:35:22,000 --> 00:35:24,000
+I was going to ask you if you ever get any carpool acetates
+
+930
+00:35:24,000 --> 00:35:26,000
+I've only had a couple and they were
+
+931
+00:35:26,000 --> 00:35:28,000
+stuck to like
+
+932
+00:35:28,000 --> 00:35:30,000
+they must have been watered they were stuck to like the case
+
+933
+00:35:30,000 --> 00:35:32,000
+almost always
+
+934
+00:35:32,000 --> 00:35:34,000
+delaminate like this but they always
+
+935
+00:35:34,000 --> 00:35:36,000
+even
+
+936
+00:35:36,000 --> 00:35:38,000
+they'll look like you cannot play them
+
+937
+00:35:38,000 --> 00:35:40,000
+but I put a little piece of tape around the edges
+
+938
+00:35:40,000 --> 00:35:42,000
+so they'll lay flat
+
+939
+00:35:42,000 --> 00:35:44,000
+that's funny
+
+940
+00:35:44,000 --> 00:35:46,000
+that's my next photo
+
+941
+00:35:50,000 --> 00:35:52,000
+this is one of those things where
+
+942
+00:35:52,000 --> 00:35:54,000
+when I'm home alone in the studio
+
+943
+00:35:54,000 --> 00:35:56,000
+and I'm just trying to get
+
+944
+00:35:56,000 --> 00:35:58,000
+the thing to play
+
+945
+00:35:58,000 --> 00:36:00,000
+it's like
+
+946
+00:36:00,000 --> 00:36:02,000
+sometimes I'm envious that you work at this
+
+947
+00:36:02,000 --> 00:36:04,000
+amazing institution
+
+948
+00:36:04,000 --> 00:36:06,000
+or that you write the Library of Congress
+
+949
+00:36:06,000 --> 00:36:08,000
+and there are resources there that the rest of us don't have
+
+950
+00:36:08,000 --> 00:36:10,000
+and also it's like
+
+951
+00:36:10,000 --> 00:36:12,000
+I had to remaster that
+
+952
+00:36:12,000 --> 00:36:14,000
+I had to get out the door
+
+953
+00:36:14,000 --> 00:36:16,000
+so this was a 45
+
+954
+00:36:16,000 --> 00:36:18,000
+it was just wobbling all over the place
+
+955
+00:36:18,000 --> 00:36:20,000
+it just wasn't flat
+
+956
+00:36:20,000 --> 00:36:22,000
+so I clamped it down and it was still wobbling
+
+957
+00:36:22,000 --> 00:36:24,000
+and I was like what am I going to do
+
+958
+00:36:24,000 --> 00:36:26,000
+so I taped it down
+
+959
+00:36:26,000 --> 00:36:28,000
+and it worked
+
+960
+00:36:28,000 --> 00:36:30,000
+and it's not pretty
+
+961
+00:36:30,000 --> 00:36:32,000
+I would never show that to the client
+
+962
+00:36:32,000 --> 00:36:34,000
+but the tape is only on the edges
+
+963
+00:36:34,000 --> 00:36:36,000
+so there you go
+
+964
+00:36:36,000 --> 00:36:38,000
+sometimes you just have to kind of do what works
+
+965
+00:36:38,000 --> 00:36:40,000
+and if anyone will know
+
+966
+00:36:40,000 --> 00:36:42,000
+it takes fine
+
+967
+00:36:42,000 --> 00:36:44,000
+nothing's broken
+
+968
+00:36:44,000 --> 00:36:46,000
+maybe a question of weird afterwards
+
+969
+00:36:46,000 --> 00:36:48,000
+but yeah I think it's like
+
+970
+00:36:48,000 --> 00:36:50,000
+it's the point
+
+971
+00:36:50,000 --> 00:36:52,000
+you get it done
+
+972
+00:36:52,000 --> 00:36:54,000
+you have to
+
+973
+00:36:54,000 --> 00:36:56,000
+and it's like oh I can't believe you did that
+
+974
+00:36:56,000 --> 00:36:58,000
+I can't believe I did that either
+
+975
+00:36:58,000 --> 00:37:00,000
+but here you go
+
+976
+00:37:00,000 --> 00:37:02,000
+I'll just say
+
+977
+00:37:02,000 --> 00:37:04,000
+the same thing as tape
+
+978
+00:37:04,000 --> 00:37:06,000
+when you don't have any information
+
+979
+00:37:06,000 --> 00:37:08,000
+or tones or anything
+
+980
+00:37:08,000 --> 00:37:10,000
+you don't have any idea with the pre-emphasis
+
+981
+00:37:10,000 --> 00:37:12,000
+that it was recorded with this
+
+982
+00:37:12,000 --> 00:37:14,000
+sorry to interrupt there's a gas leak
+
+983
+00:37:14,000 --> 00:37:16,000
+we need to evacuate
+
+984
+00:37:16,000 --> 00:37:18,000
+oh Jayce serious
+
+985
+00:37:18,000 --> 00:37:20,000
+I'm trying to say outside
+
