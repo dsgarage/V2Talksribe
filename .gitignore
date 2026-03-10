@@ -2,19 +2,36 @@
 *.py[cod]
 __pycache__/
 *.so
-.Python
+*.egg
 *.egg-info/
 dist/
 build/
-*.egg
 
 # Virtual Environment
 .venv/
 venv/
 ENV/
-env/
 
-# IDEs
+# Output
+outputs/
+*.wav
+*.mp3
+*.m4a
+*.aiff
+
+# Sample data
+samples/zoom/
+
+# App bundles (ビルド成果物)
+Talksribe.app/
+
+# Verification / experiments
+experiments/faster_whisper_verify/
+
+# Legacy packaging
+legacy/py2app/
+
+# IDE
 .vscode/
 .idea/
 *.swp
@@ -25,16 +42,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# Output
-outputs/
-*.wav
-*.mp3
-*.m4a
-*.aiff
-
-# Cache
-.cache/
+# Logs
 *.log
 
-# Package
-*.zip
+# Temporary
+*.tmp
+*.bak

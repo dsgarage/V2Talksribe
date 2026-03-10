@@ -11,3 +11,8 @@ faster-whisper
 speechbrain
 torch
 torchaudio
+resemblyzer
+spectralcluster
+sounddevice
+rumps
+pyperclip
