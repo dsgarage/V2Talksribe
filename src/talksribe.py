@@ -15,13 +15,16 @@ from faster_whisper import WhisperModel
 _HAVE_RESEMBLYZER=_HAVE_SPECTRAL=_HAVE_SILERO=False
 try:
     from resemblyzer import VoiceEncoder; _HAVE_RESEMBLYZER=True
-except: pass
+except ImportError:
+    pass
 try:
     from spectralcluster import SpectralClusterer; _HAVE_SPECTRAL=True
-except: pass
+except ImportError:
+    pass
 try:
     import torch; _HAVE_SILERO=True
-except: pass
+except ImportError:
+    pass
 console=Console()
 app=typer.Typer(add_completion=False, help="二段階VAD+話者分離 文字起こしCUI")
 class Segment(BaseModel): start: float; end: float
@@ -125,7 +128,8 @@ def diarize_ecapa(wav16:np.ndarray,sr16:int,segs:List[Segment],max_speakers:int,
                 lab=AgglomerativeClustering(n_clusters=k,affinity="cosine",linkage="average").fit_predict(X)
                 score=silhouette_score(X,lab,metric="cosine")
                 if score>best: best_k, best= k, score
-            except: continue
+            except Exception:
+                continue
         nspk=best_k if best_k!=-1 else 2
     else: nspk=num_speakers
     labels=AgglomerativeClustering(n_clusters=nspk,affinity="cosine",linkage="average").fit_predict(X)

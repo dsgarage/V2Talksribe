@@ -5,6 +5,8 @@ import sys
 block_cipher = None
 
 src_dir = os.path.join(SPECPATH, 'src')
+assets_dir = os.path.join(SPECPATH, 'assets')
+hooks_dir = os.path.join(SPECPATH, 'hooks')
 
 a = Analysis(
     [os.path.join(src_dir, 'menubar.py')],
@@ -12,7 +14,7 @@ a = Analysis(
     binaries=[],
     datas=[
         (os.path.join(src_dir, 'mic_icon.png'), '.'),
-        (os.path.join(src_dir, 'audio_worker.py'), '.'),
+        (os.path.join(src_dir, 'capture.py'), '.'),
     ],
     hiddenimports=[
         'rumps',
@@ -29,12 +31,18 @@ a = Analysis(
         'speechbrain',
         'sklearn',
         'sklearn.cluster',
-        'audio_worker',
+        'capture',
+        'engine',
+        'settings',
+        'vad',
+        'transcriber',
+        'file_transcribe',
+        'audio_preprocess',
         '_sounddevice_data',
         'multiprocessing.resource_tracker',
         'multiprocessing.spawn',
     ],
-    hookspath=[],
+    hookspath=[hooks_dir],
     hooksconfig={},
     runtime_hooks=[],
     excludes=['tkinter', 'matplotlib', 'IPython', 'jupyter'],
@@ -76,7 +84,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='Talksribe.app',
-    icon=None,
+    icon=os.path.join(assets_dir, 'Talksribe.icns'),
     bundle_identifier='com.dsgarage.talksribe',
     info_plist={
         'CFBundleName': 'Talksribe',
