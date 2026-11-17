@@ -36,6 +36,7 @@ except Exception:
 
 import applog
 import devices
+import level_meter
 from engine import TranscriptionEngine
 from file_transcribe import FileTranscriber
 from settings import POWER_PROFILES, SAVE_DIR, AppSettings
@@ -74,6 +75,7 @@ class TalksribeMenuBar(rumps.App):
         self.settings = AppSettings.load()
         self.engine = TranscriptionEngine(self.settings)
         self.engine.run()
+        self._level_meter = level_meter.LevelMeter()
 
         # ライブ確定行の履歴（UI 側で保持）
         self.transcript_lines: deque = deque(maxlen=MAX_LINES)
@@ -260,7 +262,13 @@ class TalksribeMenuBar(rumps.App):
         elif action == "detail":
             self.detail_item.title = f"内部状態: {msg[1]}"
         elif action == "title":
+            if msg[1] != "REC":
+                self._level_meter.reset()
             self.title = msg[1]
+        elif action == "level":
+            if self.engine.is_recording:
+                self._level_meter.push(msg[1], time.monotonic())
+                self.title = "REC " + self._level_meter.render(time.monotonic())
         elif action == "toggle":
             self._toggle_pending = False
             self.toggle_item.title = msg[1]
