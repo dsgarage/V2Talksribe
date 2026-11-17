@@ -86,6 +86,8 @@ class TalksribeMenuBar(rumps.App):
 
         # --- メニュー項目 ---
         self.toggle_item = rumps.MenuItem("録音開始", callback=self.on_toggle)
+        self._toggle_pending = False
+        self._toggle_pending_at = 0.0
         self.file_item = rumps.MenuItem("ファイルを文字起こし...", callback=self.on_file_transcribe)
         self.status_item = rumps.MenuItem("状態: 待機中")
         self.status_item.set_callback(None)
@@ -260,6 +262,7 @@ class TalksribeMenuBar(rumps.App):
         elif action == "title":
             self.title = msg[1]
         elif action == "toggle":
+            self._toggle_pending = False
             self.toggle_item.title = msg[1]
         elif action == "transcript":
             self._append_transcript(msg[1], msg[2])
@@ -314,7 +317,22 @@ class TalksribeMenuBar(rumps.App):
     # ==================================================================
 
     def on_toggle(self, sender):
-        self.engine.toggle()
+        if self._toggle_pending:
+            _log("ui: toggle ignored (pending)")
+            return
+        self._toggle_pending = True
+        self._toggle_pending_at = time.monotonic()
+        if self.engine.is_recording or self.engine.is_loading:
+            # 押した瞬間に見た目を変える(ワーカーが文字起こし中でも反応が見える)
+            self.toggle_item.title = "停止中..."
+            self.status_item.title = "状態: 停止中..."
+            _log("ui: stop clicked")
+            self.engine.stop()
+        else:
+            self.toggle_item.title = "開始中..."
+            self.status_item.title = "状態: 開始中..."
+            _log("ui: start clicked")
+            self.engine.start()
 
     # ==================================================================
     # ファイル文字起こし
@@ -423,16 +441,19 @@ end tell
     # ==================================================================
 
     def on_change_language(self, sender):
+        _log(f"ui: language -> {sender._lang_code}")
         self.engine.set_language(sender._lang_code)
         for _, item in self._lang_items.items():
             item.title = f"{self._check(item._lang_code == sender._lang_code)}{item._lang_label}"
 
     def on_change_model(self, sender):
+        _log(f"ui: model -> {sender._model_size}")
         self.engine.set_model(sender._model_size)
         for size, item in self._model_items.items():
             item.title = f"{self._check(size == sender._model_size)}{size}"
 
     def on_change_power_profile(self, sender):
+        _log(f"ui: profile -> {sender._power_profile}")
         self.engine.set_profile(sender._power_profile)
         for profile_name, item in self._power_items.items():
             item.title = f"{self._check(profile_name == sender._power_profile)}{item._power_label}"
@@ -449,6 +470,7 @@ end tell
         self.status_item.title = "状態: 入力デバイスの一覧を更新中..."
 
     def on_change_device(self, sender):
+        _log(f"ui: device -> {sender._dev_name}")
         self.engine.set_device(sender._dev_name)
         self.settings.input_device_name = sender._dev_name      # UI 側の表示用(保存は engine が行う)
         for key, item in self._device_items.items():
@@ -491,6 +513,10 @@ end tell
                         faulthandler.dump_traceback(file=_FAULT_FH, all_threads=True)
                 elif age <= WORKER_STALL_ALERT_SEC:
                     self._stall_alerted = False
+            if self._toggle_pending and time.monotonic() - self._toggle_pending_at > 20.0:
+                self._toggle_pending = False
+                self.toggle_item.title = "録音停止" if (self.engine.is_recording or self.engine.is_loading) else "録音開始"
+                _log("ui: toggle pending timeout → reset")
         except Exception as e:
             _log(f"watchdog error: {e}")
 

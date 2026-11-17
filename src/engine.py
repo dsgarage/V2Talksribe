@@ -317,6 +317,7 @@ class TranscriptionEngine:
 
     def _handle_start(self):
         if self.is_recording or self._load_job is not None:
+            self._emit("toggle", "録音停止" if self.is_recording else "読み込みを取り消す")
             return
         model = self.settings.model_size
         want_key = (model, self.beam_size, self.vad_backend)
@@ -484,19 +485,23 @@ class TranscriptionEngine:
             self._emit("detail", "待機")
             return
         if not self.is_recording:
+            self._emit("toggle", "録音開始")
             return
         self._emit("detail", "停止中: 残り音声を確定")
         # 残っているキャプチャを吸い出してバッファへ
         self._drain_capture_into_buffer()
         self._close_capture()
 
-        if len(self.speech_buf) > self.sr * 0.3 and self.transcriber is not None:
-            self._finalize_all(reason="stop")
-
+        # 表示を先に戻してから残りを確定する(確定は文字起こしで数秒かかる)
         elapsed = self._elapsed_str()
         self.is_recording = False
         self._emit("title", "MIC")
         self._emit("toggle", "録音開始")
+        self._emit("status", "停止しました。残りの音声を文字にしています...")
+
+        if len(self.speech_buf) > self.sr * 0.3 and self.transcriber is not None:
+            self._finalize_all(reason="stop")
+
         if self.save_path:
             text = f"保存済み ({elapsed}, {self.total_utterances}件)"
             if self.record_audio and self._session_ts:
@@ -774,6 +779,7 @@ class TranscriptionEngine:
                 self._finalize_window()
             elif (
                 self.partial_enabled
+                and self._commands.empty()
                 and speech_dur >= PARTIAL_MIN_SEC
                 and now - self.last_partial_at >= self.partial_interval_sec
             ):
