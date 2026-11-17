@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+import dataclasses
 import os
 import queue
 import threading
@@ -28,18 +29,22 @@ import level_meter
 from audio_preprocess import LiveAudioPreprocessor
 from audio_store import prune_recordings, session_part_path
 from capture import CaptureHandle, start_capture
+from hallucination import collapse_repeats, is_stock_phrase, norm_phrase
+from live_level import FRAME_SAMPLES, LevelTracker, normalize_for_asr
 from model_loader import LoadJob, hf_cache_bytes
-from settings import SAVE_DIR, AppSettings
+from segmenter import SegInfo, dedupe_prefix, plan_window_commit
+from settings import SAVE_DIR, AppSettings, hotwords_from_vocabulary, load_vocabulary
 from transcriber import Transcriber
 from vad import VoiceActivityDetector
 
 # --- タイミング定数 ---
 PARTIAL_MIN_SEC = 1.5
-LONG_SPEECH_WINDOW_SEC = 12.0
-LONG_SPEECH_STEP_SEC = 10.0
+VAD_FRAME_SAMPLES = FRAME_SAMPLES   # 4096
+LONG_SPEECH_WINDOW_SEC = 20.0
 # 張り付き脱出弁
-MAX_SPEECH_BUF_SEC = 18.0        # これを超えたら VAD に関係なく強制確定
-MAX_EMPTY_WINDOW_STREAK = 2      # 連続でこの回数だけ空確定したらバッファ全破棄
+MAX_SPEECH_BUF_SEC = 28.0        # これを超えたら VAD に関係なく強制確定
+WINDOW_RETRY_SEC = 4.0
+IDLE_STATUS_SEC = 3.0
 # capture 監視
 CAPTURE_STALL_SEC = 3.0
 CAPTURE_START_TIMEOUT_SEC = 8.0
@@ -138,6 +143,35 @@ class TranscriptionEngine:
         self._crashed = False
 
         self._apply_profile_params()
+        self._init_segmentation_state()
+        self._level = LevelTracker(self.sr, self.tuning)
+        self._reset_live_stats()
+        self._committed_tail = ""
+        self._last_publish_at = 0.0               # time.monotonic()
+        self._last_published_norm = ""
+        self._stream_t0: Optional[float] = None   # started を受けた時刻
+        self._audio_recv_sec = 0.0                # started 以降に受け取った音声の秒
+
+    def _init_segmentation_state(self):
+        """音の切り方の状態を初期値にする(同じセッションの文脈・統計・床と利得は触らない)。"""
+        self.speech_buf = np.zeros(0, dtype=np.float32)
+        self._frame_rem = np.zeros(0, dtype=np.float32)
+        self._preroll: deque = deque()            # (frame, rms_db) の列
+        self._preroll_samples = 0
+        self._in_speech = False
+        self._silence_sec = 0.0
+        self._buf_flags: list = []                # speech_buf のフレームごと: 発話と判定したか
+        self._buf_rms: list = []                  # 同: RMS dB(加工前の音で測る)
+        self._buf_probs: list = []                # 同: VAD の確率(投票率)
+        self._next_window_at = LONG_SPEECH_WINDOW_SEC
+        self._next_partial_at = 0.0
+        self._last_idle_status_at = 0.0
+        self._draining = False
+        self._continuing_window = False           # 長い発話の窓の続きか(dedupe_prefix を掛ける条件)
+
+    def _reset_live_stats(self):
+        self.live_stats = {"utt_total": 0, "utt_skipped": 0, "halluc_dropped": 0, "repeats_collapsed": 0,
+                           "dup_dropped": 0, "partials": 0, "partials_skipped_backlog": 0, "windows": 0}
 
     # ==================================================================
     # プロファイル由来パラメータ
@@ -153,7 +187,7 @@ class TranscriptionEngine:
         self.partial_interval_sec = prof["partial_interval_sec"]
         self.partial_window_sec = prof["partial_window_sec"]
         self.status_every = prof["status_every"]
-        self.silence_limit = max(1, int(0.8 / self.chunk_sec))
+        self.tuning = self.settings.live_tuning   # プロファイルを変えても同じ値
 
     # ==================================================================
     # 公開 API（任意スレッドから呼べる。実処理はワーカーで行う）
@@ -416,14 +450,24 @@ class TranscriptionEngine:
         self._alert(reason)
 
     def _ensure_live_preprocessor(self):
-        if self.settings.preprocess.enabled():
-            self.live_preprocessor = LiveAudioPreprocessor(self.settings.preprocess, self.sr)
-        else:
-            self.live_preprocessor = None
+        pre = self.settings.preprocess
+        if self.tuning.agc_enabled or self.tuning.asr_normalize:
+            pre = dataclasses.replace(pre, normalize_enabled=False)   # ライブでは既存のノーマライズを使わない
+        self.live_preprocessor = LiveAudioPreprocessor(pre, self.sr) if pre.enabled() else None
 
     def _begin_stream(self):
         self._reset_live_state()
         self._ensure_live_preprocessor()
+        if self.transcriber is not None:
+            t = self.tuning
+            try:
+                self.transcriber.hotwords = hotwords_from_vocabulary(
+                    load_vocabulary(os.path.join(self.save_dir, "vocabulary.txt")))
+            except Exception as e:
+                self._report("load_vocabulary", e)
+            if hasattr(self.transcriber, "no_speech_threshold"):
+                self.transcriber.no_speech_threshold = t.live_no_speech_threshold
+                self.transcriber.log_prob_threshold = t.live_log_prob_threshold
 
         ts = datetime.now().strftime("%Y%m%d%H%M%S")
         self._session_ts = ts
@@ -461,11 +505,13 @@ class TranscriptionEngine:
              f"audio={self.record_audio} prune={self.prune_audio}")
 
     def _reset_live_state(self):
-        self.speech_buf = np.zeros(0, dtype=np.float32)
+        self._init_segmentation_state()
         self.silence_count = 0
         self.last_partial_at = 0.0
         self.last_stats_at = 0.0
         self._empty_window_streak = 0
+        self._level.reset()
+        self._reset_live_stats()
         self.rec_start_time = time.time()
         self.total_utterances = 0
         self._silent_since = None
@@ -500,8 +546,7 @@ class TranscriptionEngine:
         self._emit("toggle", "録音開始")
         self._emit("status", "停止しました。残りの音声を文字にしています...")
 
-        if len(self.speech_buf) > self.sr * 0.3 and self.transcriber is not None:
-            self._finalize_all(reason="stop")
+        self._flush_on_stop()
 
         if self.save_path:
             text = f"保存済み ({elapsed}, {self.total_utterances}件)"
@@ -536,6 +581,7 @@ class TranscriptionEngine:
         self._capture_opened_at = now
         self.last_audio_received_at = now
         self._healthy_since = None
+        self._stream_t0 = None
         try:
             self._capture = self.capture_factory(self.sr, self.chunk_sec, name, record_path)
         except Exception as e:
@@ -556,13 +602,16 @@ class TranscriptionEngine:
         pipe = self._capture.audio if self._capture is not None else None
         if pipe is None:
             return
+        self._draining = True   # 確定の文字起こしは呼ばず、バッファにためるだけ
         try:
             while pipe.poll(0):
                 raw = pipe.recv_bytes()
                 audio = np.frombuffer(raw, dtype=np.float32)
-                self.speech_buf = np.concatenate([self.speech_buf, self._preprocess(audio)])
+                self._process_audio(audio)
         except (EOFError, OSError):
             pass
+        finally:
+            self._draining = False
 
     def _poll_ctrl(self) -> bool:
         """キャプチャ子プロセスからの状態の知らせを処理する。接続を失ったら False。"""
@@ -573,6 +622,8 @@ class TranscriptionEngine:
                 t = msg.get("type")
                 if t == "started":
                     self._capture_started = True
+                    self._stream_t0 = time.monotonic()
+                    self._audio_recv_sec = 0.0
                     self._active_device_name = msg.get("device_name")
                     self.last_audio_received_at = time.monotonic()
                     _log(f"capture started: {msg}")
@@ -685,7 +736,7 @@ class TranscriptionEngine:
         if not self.is_recording:
             return
         self._close_capture()
-        self.speech_buf = np.zeros(0, dtype=np.float32)
+        self._init_segmentation_state()
         self.silence_count = 0
         self._empty_window_streak = 0
         self.last_partial_at = 0.0
@@ -726,7 +777,7 @@ class TranscriptionEngine:
                 self._open_capture()
             else:
                 self._wait_command(0.2)
-            return  # ここで _register_silence を呼ばない(空回りの原因)
+            return  # ここで無音の処理を呼ばない(空回りの原因)
         if not self._poll_ctrl():
             return
         h = self._capture
@@ -738,6 +789,7 @@ class TranscriptionEngine:
                 audio = np.frombuffer(raw, dtype=np.float32)
                 self.last_audio_received_at = time.monotonic()
                 self._emit("level", level_meter.window_levels(audio, self.sr))
+                self._audio_recv_sec += len(audio) / self.sr
                 self._check_input_level(audio)
                 self._mark_healthy()
                 self._process_audio(audio)
@@ -759,46 +811,186 @@ class TranscriptionEngine:
             return chunk
         return self.live_preprocessor.process(chunk)
 
+    def _backlog_sec(self) -> float:
+        if self._stream_t0 is None:
+            return 0.0          # 再生の offline など、実時間でないとき
+        return max(0.0, (time.monotonic() - self._stream_t0) - self._audio_recv_sec)
+
     def _process_audio(self, audio: np.ndarray):
-        if len(audio) < 512:
+        if len(audio) == 0:
             return
         chunk = self._preprocess(audio)
+        data = np.concatenate([self._frame_rem, chunk]) if len(self._frame_rem) else chunk
+        n = (len(data) // VAD_FRAME_SAMPLES) * VAD_FRAME_SAMPLES
+        for i in range(0, n, VAD_FRAME_SAMPLES):
+            self._process_frame(np.ascontiguousarray(data[i:i + VAD_FRAME_SAMPLES], dtype=np.float32))
+        self._frame_rem = data[n:].copy()
 
-        if self.vad is not None and self.vad.is_speech(chunk):
-            self.silence_count = 0
-            self.speech_buf = np.concatenate([self.speech_buf, chunk])
+    def _vad_prob(self, x: np.ndarray) -> float:
+        if self.vad is None:
+            return 0.0
+        fn = getattr(self.vad, "speech_prob", None)
+        if fn is not None:
+            return float(fn(x))
+        return 1.0 if self.vad.is_speech(x) else 0.0      # テストの FakeVAD など
+
+    def _append_frame(self, f: np.ndarray, flag: bool, rms_db: float, prob: float):
+        self.speech_buf = np.concatenate([self.speech_buf, f])
+        self._buf_flags.append(flag)
+        self._buf_rms.append(rms_db)
+        self._buf_probs.append(prob)
+
+    def _process_frame(self, f: np.ndarray):
+        t = self.tuning
+        frame_sec = len(f) / self.sr
+        now = time.monotonic()
+        lvl = self._level.update(f)
+        prob = self._vad_prob(self._level.vad_input(f)) if lvl.gated else 0.0
+        silero = getattr(self.vad, "backend", "webrtc") == "silero"
+        enter, stay = (t.silero_enter, t.silero_stay) if silero else (t.webrtc_enter, t.webrtc_stay)
+        speech = prob >= (stay if self._in_speech else enter)
+
+        if speech:
+            if not self._in_speech:
+                pre = list(self._preroll)
+                self.speech_buf = np.concatenate([p[0] for p in pre] + [f]) if pre else f.copy()
+                self._buf_flags = [False] * len(pre) + [True]
+                self._buf_rms = [p[1] for p in pre] + [lvl.rms_db]
+                self._buf_probs = [0.0] * len(pre) + [prob]
+                self._preroll.clear()
+                self._preroll_samples = 0
+                self._in_speech = True
+            else:
+                self._append_frame(f, True, lvl.rms_db, prob)
+            self._silence_sec = 0.0
+            if self._draining:
+                return
             speech_dur = len(self.speech_buf) / self.sr
-            now = time.monotonic()
-
             if now - self.last_stats_at >= 1.0:
                 self._emit_runtime_detail("録音中: 音声検出")
                 self.last_stats_at = now
-
             if speech_dur >= MAX_SPEECH_BUF_SEC:
-                # 絶対上限: 何があっても確定して進める
-                self._finalize_all(reason="max-buffer")
-            elif speech_dur >= LONG_SPEECH_WINDOW_SEC:
-                self._finalize_window()
-            elif (
-                self.partial_enabled
-                and self._commands.empty()
-                and speech_dur >= PARTIAL_MIN_SEC
-                and now - self.last_partial_at >= self.partial_interval_sec
-            ):
-                self._do_partial()
-        else:
-            self._register_silence()
+                self._finalize_window(force=True)
+            elif speech_dur >= LONG_SPEECH_WINDOW_SEC and speech_dur >= self._next_window_at:
+                self._finalize_window(force=False)
+            else:
+                self._maybe_partial(now, speech_dur)
+            return
 
-    def _register_silence(self):
-        self.silence_count += 1
-        if self.silence_count >= self.silence_limit and len(self.speech_buf) > self.sr * 0.3:
-            self._finalize_all(reason="silence")
-        elif self.silence_count >= self.silence_limit:
-            self.speech_buf = np.zeros(0, dtype=np.float32)
-            self._empty_window_streak = 0
-        if self.silence_count % self.status_every == 0:
-            self._emit("status", f"録音中 {self._elapsed_str()} ({self.total_utterances}件)")
-            self._emit_runtime_detail("待機: 音声待ち")
+        if self._in_speech:
+            self._append_frame(f, False, lvl.rms_db, prob)
+            self._silence_sec += frame_sec
+            content_sec = len(self.speech_buf) / self.sr - self._silence_sec
+            need = t.short_utt_silence_sec if content_sec < t.short_utt_sec else t.silence_end_sec
+            if self._silence_sec >= need and not self._draining:
+                self._finalize_utterance(reason="silence")
+        else:
+            self._preroll.append((f, lvl.rms_db))
+            self._preroll_samples += len(f)
+            limit = int(t.preroll_sec * self.sr)
+            while self._preroll and self._preroll_samples - len(self._preroll[0][0]) >= limit:
+                self._preroll_samples -= len(self._preroll.popleft()[0])
+            if now - self._last_idle_status_at >= IDLE_STATUS_SEC:
+                self._last_idle_status_at = now
+                self._emit("status", f"録音中 {self._elapsed_str()} ({self.total_utterances}件)")
+                self._emit_runtime_detail("待機: 音声待ち")
+
+    # ------------------------------------------------------------------
+    # 区間の受け入れ条件
+    # ------------------------------------------------------------------
+
+    def _utterance_stats(self) -> dict:
+        """speech_buf 全体(プリロールと末尾の無音を含む)について計算する。"""
+        flags = self._buf_flags
+        idx = [i for i, v in enumerate(flags) if v]
+        fs = VAD_FRAME_SAMPLES / self.sr
+        if not idx:
+            return {"voiced_sec": 0.0, "ratio": 0.0, "snr_db": -99.0, "peak_prob": 0.0, "voiced_rms": []}
+        span = idx[-1] - idx[0] + 1                 # 最初の発話フレームから最後の発話フレームまで
+        voiced_rms = [self._buf_rms[i] for i in idx]
+        return {"voiced_sec": len(idx) * fs, "ratio": len(idx) / span,
+                "snr_db": float(np.median(voiced_rms)) - self._level.floor_db,
+                "peak_prob": max(self._buf_probs[i] for i in idx), "voiced_rms": voiced_rms}
+
+    def _accept_utterance(self, st: dict) -> tuple:
+        t = self.tuning
+        if st["voiced_sec"] < t.min_voiced_sec:
+            return False, f"voiced {st['voiced_sec']:.2f}s"
+        if st["ratio"] < t.min_voiced_ratio:
+            return False, f"ratio {st['ratio']:.2f}"
+        if st["snr_db"] < t.min_snr_db:
+            return False, f"snr {st['snr_db']:.1f}dB"
+        silero = getattr(self.vad, "backend", "webrtc") == "silero"
+        if silero and st["peak_prob"] < t.utt_min_peak_prob:
+            return False, f"prob {st['peak_prob']:.2f}"
+        return True, ""
+
+    # ------------------------------------------------------------------
+    # Whisper の呼び出し
+    # ------------------------------------------------------------------
+
+    def _asr_opts(self, audio_sec: float, *, partial: bool = False) -> dict:
+        t = self.tuning
+        return {"temperature": t.temperature,
+                "max_new_tokens": int(min(t.tokens_cap, t.tokens_base + t.tokens_per_sec * audio_sec)),
+                "beam_size": t.partial_beam if partial else None,
+                "without_timestamps": partial}
+
+    def _transcribe_segments(self, audio: np.ndarray, voiced_rms: list, *, initial_prompt=None,
+                             partial=False) -> list:
+        """SegInfo の列を返す。transcriber に collect_segments が無ければ collect_texts で代用する。"""
+        x = normalize_for_asr(audio, voiced_rms, self.tuning)
+        opts = self._asr_opts(len(x) / self.sr, partial=partial)
+        fn = getattr(self.transcriber, "collect_segments", None)
+        if fn is not None:
+            return fn(x, initial_prompt=initial_prompt, **opts)
+        texts = self.transcriber.collect_texts(x)          # テストの FakeTranscriber など。オプションは渡さない
+        dur = len(x) / self.sr
+        return [SegInfo(0.0, dur, s, 0.0, 0.0) for s in texts if s]
+
+    # ------------------------------------------------------------------
+    # 幻聴の除去・文脈
+    # ------------------------------------------------------------------
+
+    def _filter_segments(self, segs: list, st: dict) -> list:
+        t = self.tuning
+        out = []
+        lang = getattr(self.transcriber, "language", None)
+        for s in segs:
+            text = s.text.strip()
+            if not text:
+                continue
+            if not t.halluc_filter:
+                out.append(text)
+                continue
+            weak = (st["voiced_sec"] < t.weak_voiced_sec or s.no_speech_prob > t.weak_no_speech_prob
+                    or s.avg_logprob < t.weak_avg_logprob)
+            # 弱くない区間は 5 回以上続いたときだけまとめる('very very very good' などを壊さない)
+            text2, collapsed = collapse_repeats(text, t.repeat_min if weak else max(t.repeat_min, 5))
+            if collapsed:
+                self.live_stats["repeats_collapsed"] += 1
+                _log(f"halluc collapse: {text!r} -> {text2!r}")
+            text = text2
+            if weak and is_stock_phrase(text, lang):
+                self.live_stats["halluc_dropped"] += 1
+                _log(f"halluc drop: stock weak={weak} {text!r}")
+                continue
+            n = norm_phrase(text)
+            if (weak and n and n == self._last_published_norm
+                    and time.monotonic() - self._last_publish_at <= t.dup_window_sec):
+                self.live_stats["dup_dropped"] += 1
+                _log(f"halluc drop: dup {text!r}")
+                continue
+            out.append(text)
+        return out
+
+    def _context_prompt(self) -> Optional[str]:
+        t = self.tuning
+        if t.context_chars <= 0 or not self._committed_tail:
+            return None
+        if time.monotonic() - self._last_publish_at > t.context_max_gap_sec:
+            return None
+        return self._committed_tail[-t.context_chars:]
 
     def _publish_texts(self, texts):
         if not texts:
@@ -815,59 +1007,140 @@ class TranscriptionEngine:
                     f.write(f"[{ts}] {full}\n")
             except OSError as e:
                 self._report("_publish_texts save", e, detail="保存に失敗")
+        self._last_publish_at = time.monotonic()
+        self._last_published_norm = norm_phrase(full)
+        self._committed_tail = (self._committed_tail + full)[-200:]
+
+    # ------------------------------------------------------------------
+    # 部分更新(テンポ)
+    # ------------------------------------------------------------------
+
+    def _maybe_partial(self, now: float, speech_dur: float):
+        t = self.tuning
+        if not (self.partial_enabled and self._commands.empty()):     # #9 の条件はそのまま
+            return
+        if speech_dur < t.partial_min_speech_sec or now < self._next_partial_at:
+            return
+        if now - self.last_partial_at < self.partial_interval_sec:
+            return
+        if self._backlog_sec() > t.partial_max_backlog_sec:
+            self.live_stats["partials_skipped_backlog"] += 1
+            return
+        self._do_partial()
 
     def _do_partial(self):
+        t0 = time.monotonic()
         try:
             self._emit_runtime_detail("文字起こし中: 部分更新")
-            max_samples = int(self.sr * self.partial_window_sec)
-            audio = self.speech_buf[-max_samples:] if len(self.speech_buf) > max_samples else self.speech_buf
-            texts = self.transcriber.collect_texts(audio)
-            if texts:
-                self._emit("status", f"{self._elapsed_str()} ...{' '.join(texts)[:40]}")
-            self.last_partial_at = time.monotonic()
+            k = max(1, int(self.partial_window_sec * self.sr / VAD_FRAME_SAMPLES))
+            audio = self.speech_buf[-k * VAD_FRAME_SAMPLES:]
+            rms = [r for r, fl in zip(self._buf_rms[-k:], self._buf_flags[-k:]) if fl]
+            segs = self._transcribe_segments(audio, rms, partial=True)
+            text = " ".join(s.text.strip() for s in segs if s.text.strip())
+            if text:
+                text, _ = collapse_repeats(text, self.tuning.repeat_min)
+                self._emit("partial", text[-80:])
+            self.live_stats["partials"] += 1
         except Exception as e:
             self._report("_do_partial", e, detail="部分文字起こしに失敗")
-
-    def _finalize_window(self):
-        window_samples = int(self.sr * LONG_SPEECH_WINDOW_SEC)
-        step_samples = int(self.sr * LONG_SPEECH_STEP_SEC)
-        window_audio = self.speech_buf[:window_samples].copy()
-        cleared = False
-        try:
-            self._emit_runtime_detail("文字起こし中: 長尺発話を分割")
-            texts = self.transcriber.collect_texts(window_audio, emit_until_sec=LONG_SPEECH_STEP_SEC)
-            if texts:
-                self._empty_window_streak = 0
-                self._publish_texts(texts)
-            else:
-                self._empty_window_streak += 1
-        except Exception as e:
-            self._report("_finalize_window", e, detail="長尺発話の確定に失敗")
         finally:
-            if self._empty_window_streak >= MAX_EMPTY_WINDOW_STREAK:
-                # 張り付き脱出弁: 中身が無音/幻聴なのでバッファを全破棄する
-                _log(
-                    f"escape valve: empty_window_streak={self._empty_window_streak} "
-                    f"→ speech_buf({len(self.speech_buf)}) を破棄"
-                )
-                self.speech_buf = np.zeros(0, dtype=np.float32)
-                self._empty_window_streak = 0
-                self.silence_count = 0
-                cleared = True
-            if not cleared:
-                self.speech_buf = self.speech_buf[step_samples:]
-            self.last_partial_at = 0.0
+            done = time.monotonic()
+            self.last_partial_at = done
+            self._next_partial_at = done + max(self.partial_interval_sec,
+                                               self.tuning.partial_cost_factor * (done - t0))
+
+    # ------------------------------------------------------------------
+    # 確定
+    # ------------------------------------------------------------------
+
+    def _clear_buffer(self):
+        self.speech_buf = np.zeros(0, dtype=np.float32)
+        self._buf_flags = []
+        self._buf_rms = []
+        self._buf_probs = []
+        self._in_speech = False
+        self._silence_sec = 0.0
+        self._next_window_at = LONG_SPEECH_WINDOW_SEC
+        self.last_partial_at = 0.0
+        self._next_partial_at = 0.0
+
+    def _cut_buffer(self, cut_sec: float) -> int:
+        """先頭から cut_sec ぶんを捨てる(フレームの境目にそろえる)。捨てたフレーム数を返す。"""
+        k = int(round(cut_sec * self.sr / VAD_FRAME_SAMPLES))
+        k = max(0, min(k, len(self.speech_buf) // VAD_FRAME_SAMPLES))
+        self.speech_buf = self.speech_buf[k * VAD_FRAME_SAMPLES:]
+        self._buf_flags = self._buf_flags[k:]
+        self._buf_rms = self._buf_rms[k:]
+        self._buf_probs = self._buf_probs[k:]
+        return k
+
+    def _finalize_utterance(self, reason: str):
+        self.live_stats["utt_total"] += 1
+        st = self._utterance_stats()
+        ok, why = self._accept_utterance(st)
+        if ok and self.transcriber is not None:
+            try:
+                self._emit_runtime_detail("文字起こし中: 発話を確定")
+                segs = self._transcribe_segments(self.speech_buf, st["voiced_rms"],
+                                                 initial_prompt=self._context_prompt())
+                texts = self._filter_segments(segs, st)
+                if texts and self._continuing_window:
+                    first = dedupe_prefix(self._committed_tail, texts[0])
+                    texts = ([first] if first else []) + texts[1:]
+                self._publish_texts(texts)
+            except Exception as e:
+                self._report("_finalize_utterance", e, detail="発話の確定に失敗")
+        elif not ok:
+            self.live_stats["utt_skipped"] += 1
+            _log(f"utt skip ({reason}): {why} len={len(self.speech_buf)/self.sr:.2f}s")
+        self._clear_buffer()
+        self._continuing_window = False
+        self._emit("partial", "")       # 途中経過の表示を消す
 
     def _finalize_all(self, reason: str = ""):
+        self._finalize_utterance(reason)
+
+    def _finalize_window(self, force: bool):
+        self.live_stats["windows"] += 1
+        buf_sec = len(self.speech_buf) / self.sr
+        st = self._utterance_stats()
+        plan = None
         try:
-            self._emit_runtime_detail("文字起こし中: 発話を確定")
-            texts = self.transcriber.collect_texts(self.speech_buf)
-            self._publish_texts(texts)
+            self._emit_runtime_detail("文字起こし中: 長尺発話を分割")
+            segs = self._transcribe_segments(self.speech_buf, st["voiced_rms"],
+                                             initial_prompt=self._context_prompt())
+            plan = plan_window_commit(segs, buf_sec, force=force)
+            texts = self._filter_segments(plan.segs, st)
+            if texts:
+                if self._continuing_window:
+                    first = dedupe_prefix(self._committed_tail, texts[0])
+                    texts = ([first] if first else []) + texts[1:]
+                self._publish_texts(texts)
+                self._continuing_window = True
+            if not segs:
+                _log(f"window: 文字が出ず {plan.cut_sec:.1f} 秒を捨てました(録音ファイルには残っています)")
         except Exception as e:
-            self._report("_finalize_all", e, detail="発話の確定に失敗")
-        self.speech_buf = np.zeros(0, dtype=np.float32)
+            self._report("_finalize_window", e, detail="長尺発話の確定に失敗")
+        cut_sec = plan.cut_sec if plan is not None else (buf_sec if force else max(0.0, buf_sec - 2.0))
+        k = self._cut_buffer(cut_sec)
+        remain = len(self.speech_buf) / self.sr
+        # 1 フレームも切れなかったときは、毎フレーム空回りしないよう待つ
+        self._next_window_at = (remain + WINDOW_RETRY_SEC) if k == 0 else LONG_SPEECH_WINDOW_SEC
         self.last_partial_at = 0.0
-        self._empty_window_streak = 0
+        if len(self.speech_buf) == 0:
+            self._in_speech = False
+            self._silence_sec = 0.0
+
+    def _flush_on_stop(self):
+        if self.transcriber is None or len(self.speech_buf) == 0:
+            self._clear_buffer()
+            return
+        while len(self.speech_buf) / self.sr > MAX_SPEECH_BUF_SEC:
+            self._finalize_window(force=True)
+        if len(self.speech_buf) > self.sr * 0.3:
+            self._finalize_utterance(reason="stop")
+        else:
+            self._clear_buffer()
 
     # ==================================================================
     # 設定変更ハンドラ（ワーカースレッド内で実行）

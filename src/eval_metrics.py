@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from typing import List
+from typing import List, Optional
 
 _TIME_MARK = re.compile(r"\[\d{1,2}:\d{2}:\d{2}\]")
 
@@ -99,3 +99,115 @@ def percentile(values: List[float], p: float) -> float:
     lo = int(k)
     hi = min(lo + 1, len(xs) - 1)
     return xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
+
+
+def _words(text: str) -> List[str]:
+    """小文字にして、句読点(category P*)を空白に置き換え、空白で分けた語の列にする。"""
+    s = unicodedata.normalize("NFKC", text or "").lower()
+    s = "".join(" " if unicodedata.category(ch)[0] == "P" else ch for ch in s)
+    return s.split()
+
+
+def word_errors(ref: str, hyp: str) -> dict:
+    """英語向け。語の列で Levenshtein を取り、内訳を返す(char_errors と同じ後ろ向きのたどり方)。
+
+    {"N","S","D","I","wer","longest_deletion"}
+    """
+    r = _words(ref)
+    h = _words(hyp)
+    n, m = len(r), len(h)
+    ops: List[bytearray] = [bytearray(m + 1) for _ in range(n + 1)]
+    prev = list(range(m + 1))
+    for j in range(1, m + 1):
+        ops[0][j] = _INS
+    for i in range(1, n + 1):
+        cur = [i] + [0] * m
+        ops[i][0] = _DEL
+        ri = r[i - 1]
+        row = ops[i]
+        for j in range(1, m + 1):
+            if ri == h[j - 1]:
+                best, op = prev[j - 1], _MATCH
+            else:
+                best, op = prev[j - 1] + 1, _SUB
+            d = prev[j] + 1
+            if d < best:
+                best, op = d, _DEL
+            ins = cur[j - 1] + 1
+            if ins < best:
+                best, op = ins, _INS
+            cur[j] = best
+            row[j] = op
+        prev = cur
+
+    s = d = ins = 0
+    longest = run = 0
+    i, j = n, m
+    while i > 0 or j > 0:
+        op = ops[i][j]
+        if op == _DEL:
+            d += 1
+            run += 1
+            longest = max(longest, run)
+            i -= 1
+            continue
+        run = 0
+        if op == _INS:
+            ins += 1
+            j -= 1
+        else:
+            if op == _SUB:
+                s += 1
+            i -= 1
+            j -= 1
+    return {"N": n, "S": s, "D": d, "I": ins, "wer": (s + d + ins) / max(n, 1),
+            "longest_deletion": longest}
+
+
+def _is_en_line(line: str) -> bool:
+    letters = [ch for ch in line if not ch.isspace()]
+    if not letters:
+        return False
+    ascii_alpha = sum(1 for ch in letters if ch.isascii() and ch.isalpha())
+    return ascii_alpha * 2 >= len(letters)
+
+
+def line_stats(lines: List[str], lang: Optional[str]) -> dict:
+    """正解なしで見られる指標。
+
+    {"lines", "units_median"(en は語数 / ja は normalize_ja 後の文字数の 1 行あたり中央値),
+     "short_ratio"(en は 4 語未満 / ja は 8 文字未満の行の割合), "stock_lines", "repeat_lines"}
+    lang が None なら、ASCII の英字が文字の半分以上の行を en、それ以外を ja として 1 行ずつ数える。
+    """
+    from hallucination import collapse_repeats, is_stock_phrase
+
+    units: List[int] = []
+    short = stock = repeat = 0
+    for line in lines:
+        ln = lang or ("en" if _is_en_line(line) else "ja")
+        if ln == "en":
+            u = len(_words(line))
+            is_short = u < 4
+        else:
+            u = len(normalize_ja(line))
+            is_short = u < 8
+        units.append(u)
+        short += 1 if is_short else 0
+        collapsed, changed = collapse_repeats(line)
+        if changed:
+            repeat += 1
+        if is_stock_phrase(collapsed, ln):
+            stock += 1
+    n = len(lines)
+    return {"lines": n, "units_median": percentile([float(u) for u in units], 50),
+            "short_ratio": (short / n) if n else 0.0, "stock_lines": stock, "repeat_lines": repeat}
+
+
+def agreement(base_lines: List[str], other_lines: List[str], lang: Optional[str]) -> dict:
+    """base を仮の基準にした一致。{"cer": ...} に加えて、lang が "en" なら {"wer": ...}。"""
+    b = "\n".join(base_lines)
+    o = "\n".join(other_lines)
+    out = {"cer": char_errors(b, o)}
+    if lang == "en":
+        out["wer"] = word_errors(b, o)
+    return out

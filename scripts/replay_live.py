@@ -5,19 +5,23 @@
 - offline: 音声を chunk_sec ごとに engine._process_audio へ渡す。決定的で、速度の計測に向く。
 - realtime: ファイル源のキャプチャ(start_file_capture)で実時間どおりに流し、engine を
   本物と同じ経路で動かす。実時間に追いつくか(tail_sec、取りこぼし)を見る。
+- batch: 同じ録音をファイルとして一括で文字起こしする(VAD あり、前の文を引き継ぐ)。
+  ライブの結果との比較の基準にする(scripts/compare_runs.py)。
 
 マイクは開かない。設定は AppSettings() を新しく作り、本物の config.json は読まない・書かない。
 ログと保存先は --out の下に向け、本物の ~/Documents/Talksribe には書かない。
 
 使い方:
-    python3 scripts/replay_live.py <audio> [--mode offline|realtime] [--profile balanced]
+    python3 scripts/replay_live.py <audio> [--mode offline|realtime|batch] [--profile balanced]
         [--model base] [--lang ja] [--out DIR] [--ref REF.txt]
+        [--tune KEY=VALUE ...] [--silence-end 1.4] [--asr-normalize off] [--vocab FILE]
 出力: DIR/transcript.txt(確定した順の番号と本文)、DIR/metrics.json
 """
 from __future__ import annotations
 
 import argparse
 import contextlib
+import dataclasses
 import json
 import os
 import re
@@ -31,8 +35,10 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 import applog  # noqa: E402
+import eval_metrics  # noqa: E402
 from eval_metrics import char_errors, percentile  # noqa: E402
-from settings import POWER_PROFILES, AppSettings  # noqa: E402
+from settings import (POWER_PROFILES, AppSettings, apply_tuning_overrides,  # noqa: E402
+                      hotwords_from_vocabulary, load_vocabulary)
 
 SR = 16000
 
@@ -47,9 +53,6 @@ class TimedTranscriber:
     def __init__(self, inner):
         object.__setattr__(self, "inner", inner)
         object.__setattr__(self, "calls", [])
-
-    def __getattr__(self, name):
-        return getattr(self.inner, name)
 
     def __setattr__(self, name, value):
         if name in ("inner", "calls"):
@@ -67,9 +70,13 @@ class TimedTranscriber:
     def collect_texts(self, audio, *a, **k):
         return self._timed("texts", self.inner.collect_texts, audio, *a, **k)
 
-    def collect_segments(self, audio, *a, **k):
-        fn = getattr(self.inner, "collect_segments")   # 無ければ AttributeError
-        return self._timed("segments", fn, audio, *a, **k)
+    def __getattr__(self, name):
+        # collect_segments は内側に在るときだけ(計測つきで)見せる。偽物の Transcriber では
+        # 属性が無いことにして、engine が collect_texts に切り替えられるようにする
+        if name == "collect_segments":
+            fn = getattr(self.inner, "collect_segments")   # 無ければ AttributeError
+            return lambda audio, *a, **k: self._timed("segments", fn, audio, *a, **k)
+        return getattr(self.inner, name)
 
 
 class ResourceMonitor:
@@ -175,25 +182,36 @@ def _drain(eng, transcripts, alerts=None):
             alerts.append(ev[1])
 
 
-def _apply_extras(eng, transcriber, context_chars, vocab_text):
-    """U6 の機能(語彙・文脈)。無い版では警告して無視する。"""
-    if vocab_text:
-        if hasattr(transcriber.inner, "hotwords"):
-            transcriber.hotwords = vocab_text
-        else:
-            print("警告: この版では --vocab は未対応です(無視します)", file=sys.stderr)
-    if context_chars:
-        if hasattr(eng, "context_chars"):
-            eng.context_chars = context_chars
-        else:
-            print("警告: この版では --context-chars は未対応です(無視します)", file=sys.stderr)
+def _apply_live_thresholds(transcriber, tuning, vocab_terms):
+    """engine._begin_stream と同じ設定(語彙・ライブの閾値)を transcriber に入れる。"""
+    transcriber.hotwords = hotwords_from_vocabulary(vocab_terms)
+    if hasattr(transcriber, "no_speech_threshold"):
+        transcriber.no_speech_threshold = tuning.live_no_speech_threshold
+        transcriber.log_prob_threshold = tuning.live_log_prob_threshold
+
+
+@contextlib.contextmanager
+def patched_vocabulary(vocab_terms):
+    """engine の語彙の読み込みを差し替える(本物の ~/Documents/Talksribe/vocabulary.txt を読まない)。"""
+    import engine as engine_module
+
+    old = engine_module.load_vocabulary
+    engine_module.load_vocabulary = lambda *a, **k: list(vocab_terms)
+    try:
+        yield
+    finally:
+        engine_module.load_vocabulary = old
+
+
+def _line_metrics(transcripts, lang):
+    return eval_metrics.line_stats(transcripts, lang)
 
 
 # ----------------------------------------------------------------------
 # offline
 # ----------------------------------------------------------------------
 
-def run_offline(audio_path, settings, transcriber, out_dir, *, context_chars=0, vocab_text=None) -> dict:
+def run_offline(audio_path, settings, transcriber, out_dir, *, vocab_terms=None) -> dict:
     """マイクもワーカーも使わず、engine の処理を同じ順で直接呼ぶ。transcriber は TimedTranscriber。"""
     from engine import TranscriptionEngine
     from vad import VoiceActivityDetector
@@ -207,7 +225,8 @@ def run_offline(audio_path, settings, transcriber, out_dir, *, context_chars=0, 
         eng.vad = VoiceActivityDetector(eng.vad_backend, eng.sr, aggressiveness=eng.vad_aggressiveness)
         eng.vad.load()
         eng.transcriber = transcriber
-        _apply_extras(eng, transcriber, context_chars, vocab_text)
+        # _begin_stream を通らないので、同じ設定をここで入れる
+        _apply_live_thresholds(transcriber, eng.tuning, vocab_terms or [])
         eng._reset_live_state()
         eng._ensure_live_preprocessor()
         eng.save_path = os.path.join(out_dir, "engine.txt")
@@ -233,6 +252,8 @@ def run_offline(audio_path, settings, transcriber, out_dir, *, context_chars=0, 
         **_call_stats(transcriber.calls),
         "tail_sec": None, "dropped_sec": None, "alerts": [],
         "cpu_avg": mon.cpu_avg, "rss_peak_mb": mon.rss_peak_mb, "errors": None,
+        "tuning": dataclasses.asdict(settings.live_tuning), "live_stats": eng.live_stats,
+        "line_stats": _line_metrics(transcripts, settings.language),
     }
     _write_outputs(out_dir, transcripts, metrics)
     return metrics
@@ -242,8 +263,7 @@ def run_offline(audio_path, settings, transcriber, out_dir, *, context_chars=0, 
 # realtime
 # ----------------------------------------------------------------------
 
-def run_realtime(audio_path, settings, transcriber, out_dir, *, speed=1.0,
-                 context_chars=0, vocab_text=None) -> dict:
+def run_realtime(audio_path, settings, transcriber, out_dir, *, speed=1.0, vocab_terms=None) -> dict:
     """ファイル源のキャプチャで実時間どおりに流す。transcriber は TimedTranscriber(未読み込みでもよい)。"""
     import queue
 
@@ -254,13 +274,12 @@ def run_realtime(audio_path, settings, transcriber, out_dir, *, speed=1.0,
     _, audio_sec = _audio_seconds(audio_path)
     mon = ResourceMonitor()
     transcripts, alerts, stamps = [], [], []
-    with isolated_log(out_dir):
+    with isolated_log(out_dir), patched_vocabulary(vocab_terms or []):
         eng = TranscriptionEngine(
             settings,
             capture_factory=lambda sr, cs, name, rec: start_file_capture(sr, cs, audio_path, speed),
             transcriber_factory=lambda s, l, b: transcriber,
             save_dir=out_dir, record_audio=False, prune_audio=False)
-        _apply_extras(eng, transcriber, context_chars, vocab_text)
 
         def pump(timeout):
             try:
@@ -307,6 +326,39 @@ def run_realtime(audio_path, settings, transcriber, out_dir, *, speed=1.0,
         **_call_stats(transcriber.calls),
         "tail_sec": tail, "dropped_sec": dropped, "alerts": alerts,
         "cpu_avg": mon.cpu_avg, "rss_peak_mb": mon.rss_peak_mb, "errors": None,
+        "tuning": dataclasses.asdict(settings.live_tuning), "live_stats": eng.live_stats,
+        "line_stats": _line_metrics(transcripts, settings.language),
+    }
+    _write_outputs(out_dir, transcripts, metrics)
+    return metrics
+
+
+# ----------------------------------------------------------------------
+# batch
+# ----------------------------------------------------------------------
+
+def run_batch(audio_path, settings, transcriber, out_dir, *, vocab_terms=None) -> dict:
+    """同じ録音をファイルとして一括で文字起こしする(ファイル文字起こしと同じ流儀)。
+
+    transcriber は condition_on_previous_text=True の Transcriber を包んだ TimedTranscriber。
+    """
+    os.makedirs(out_dir, exist_ok=True)
+    _, audio_sec = _audio_seconds(audio_path)
+    transcriber.hotwords = hotwords_from_vocabulary(vocab_terms or [])
+    mon = ResourceMonitor()
+    mon.start()
+    t0 = time.perf_counter()
+    info, segs = transcriber.inner.iter_segments(audio_path, vad_filter=True, strict=False)
+    transcripts = [s.text.strip() for s in segs if s.text.strip()]
+    proc_sec = time.perf_counter() - t0
+    mon.stop()
+    metrics = {
+        "audio_sec": audio_sec, "proc_sec": proc_sec, "rtf": proc_sec / audio_sec if audio_sec else 0.0,
+        **_call_stats([("batch", proc_sec, audio_sec)]),
+        "tail_sec": None, "dropped_sec": None, "alerts": [],
+        "cpu_avg": mon.cpu_avg, "rss_peak_mb": mon.rss_peak_mb, "errors": None,
+        "tuning": dataclasses.asdict(settings.live_tuning), "live_stats": None,
+        "line_stats": _line_metrics(transcripts, settings.language),
     }
     _write_outputs(out_dir, transcripts, metrics)
     return metrics
@@ -316,7 +368,7 @@ def run_realtime(audio_path, settings, transcriber, out_dir, *, speed=1.0,
 # main
 # ----------------------------------------------------------------------
 
-def build_transcriber(args, lang, beam, *, load):
+def build_transcriber(args, lang, beam, *, load, condition_on_previous_text=False):
     if args.backend == "mlx":
         from bench_backends import MlxTranscriber
 
@@ -325,7 +377,8 @@ def build_transcriber(args, lang, beam, *, load):
         from transcriber import Transcriber
 
         inner = Transcriber(args.model, compute_type=args.compute_type,
-                            cpu_threads=args.cpu_threads, language=lang, beam_size=beam)
+                            cpu_threads=args.cpu_threads, language=lang, beam_size=beam,
+                            condition_on_previous_text=condition_on_previous_text)
     if load:
         inner.load()
     return TimedTranscriber(inner)
@@ -334,7 +387,7 @@ def build_transcriber(args, lang, beam, *, load):
 def main() -> int:
     ap = argparse.ArgumentParser(description="録音済み音声をライブ経路に流して計測する(マイクなし)")
     ap.add_argument("audio")
-    ap.add_argument("--mode", choices=["offline", "realtime"], default="offline")
+    ap.add_argument("--mode", choices=["offline", "realtime", "batch"], default="offline")
     ap.add_argument("--profile", choices=list(POWER_PROFILES), default="balanced")
     ap.add_argument("--model", default=None, help="既定はプロファイルの model_size")
     ap.add_argument("--compute-type", default="int8")
@@ -342,7 +395,16 @@ def main() -> int:
     ap.add_argument("--cpu-threads", type=int, default=0)
     ap.add_argument("--lang", default="ja")
     ap.add_argument("--vocab", default=None)
-    ap.add_argument("--context-chars", type=int, default=0)
+    ap.add_argument("--context-chars", type=int, default=None)
+    ap.add_argument("--tune", action="append", default=[], metavar="KEY=VALUE",
+                    help="LiveTuning の値を上書きする(何度でも書ける)")
+    ap.add_argument("--silence-end", type=float, default=None)
+    ap.add_argument("--preroll", type=float, default=None)
+    ap.add_argument("--gate-margin-db", type=float, default=None)
+    ap.add_argument("--asr-normalize", choices=["on", "off"], default=None)
+    ap.add_argument("--agc", choices=["on", "off"], default=None)
+    ap.add_argument("--halluc-filter", choices=["on", "off"], default=None)
+    ap.add_argument("--temperature", default=None, help='例: "0.0,0.4"')
     ap.add_argument("--backend", choices=["faster", "mlx"], default="faster")
     ap.add_argument("--mlx-model", default=None)
     ap.add_argument("--speed", type=float, default=1.0)
@@ -355,6 +417,9 @@ def main() -> int:
         return 1
     if args.backend == "mlx" and not args.mlx_model:
         print("--backend mlx には --mlx-model が必要です", file=sys.stderr)
+        return 1
+    if args.backend == "mlx" and args.mode == "batch":
+        print("--mode batch は --backend faster だけに対応しています", file=sys.stderr)
         return 1
 
     prof = POWER_PROFILES[args.profile]
@@ -370,24 +435,39 @@ def main() -> int:
     settings.model_size = args.model
     settings.language = args.lang
 
-    vocab_text = None
-    if args.vocab:
-        with open(args.vocab, encoding="utf-8") as f:
-            vocab_text = f.read().strip()
+    # --tune を先に、近道を後に当てる(両方あれば近道が勝つ)
+    pairs = list(args.tune or [])
+    if args.context_chars is not None:
+        pairs.append(f"context_chars={args.context_chars}")
+    shortcuts = (("silence_end_sec", args.silence_end), ("preroll_sec", args.preroll),
+                 ("gate_margin_db", args.gate_margin_db), ("asr_normalize", args.asr_normalize),
+                 ("agc_enabled", args.agc), ("halluc_filter", args.halluc_filter),
+                 ("temperature", args.temperature))
+    pairs += [f"{k}={v}" for k, v in shortcuts if v is not None]
+    try:
+        apply_tuning_overrides(settings.live_tuning, pairs)
+    except ValueError as e:
+        print(f"--tune: {e}", file=sys.stderr)
+        return 2
 
-    timed = build_transcriber(args, args.lang, beam, load=(args.mode == "offline"))
+    # 語彙は --vocab のファイルだけ(本物の ~/Documents/Talksribe/vocabulary.txt は読まない)
+    vocab_terms = load_vocabulary(args.vocab) if args.vocab else []
+
+    timed = build_transcriber(args, args.lang, beam, load=(args.mode in ("offline", "batch")),
+                              condition_on_previous_text=(args.mode == "batch"))
     if args.mode == "offline":
-        metrics = run_offline(args.audio, settings, timed, out,
-                              context_chars=args.context_chars, vocab_text=vocab_text)
+        metrics = run_offline(args.audio, settings, timed, out, vocab_terms=vocab_terms)
+    elif args.mode == "batch":
+        metrics = run_batch(args.audio, settings, timed, out, vocab_terms=vocab_terms)
     else:
         metrics = run_realtime(args.audio, settings, timed, out, speed=args.speed,
-                               context_chars=args.context_chars, vocab_text=vocab_text)
+                               vocab_terms=vocab_terms)
 
     full = {"audio": args.audio, "mode": args.mode, "backend": args.backend,
             "model": args.mlx_model if args.backend == "mlx" else args.model,
             "compute_type": args.compute_type, "beam": beam, "cpu_threads": args.cpu_threads,
             "profile": args.profile, "lang": args.lang, "vocab": args.vocab,
-            "context_chars": args.context_chars}
+            "context_chars": settings.live_tuning.context_chars}
     full.update(metrics)
     if args.ref:
         with open(args.ref, encoding="utf-8") as f:
@@ -395,6 +475,8 @@ def main() -> int:
         with open(os.path.join(out, "transcript.txt"), encoding="utf-8") as f:
             hyp = "\n".join(line.split(" ", 1)[1] if " " in line else "" for line in f.read().splitlines())
         full["errors"] = char_errors(ref, hyp)
+        if args.lang == "en":
+            full["word_errors"] = eval_metrics.word_errors(ref, hyp)
     with open(os.path.join(out, "metrics.json"), "w", encoding="utf-8") as f:
         json.dump(full, f, ensure_ascii=False, indent=2)
 
