@@ -16,6 +16,7 @@ import threading
 from datetime import datetime, timedelta
 from typing import Callable, Optional
 
+import applog
 from audio_preprocess import preprocess_audio_file
 from settings import SAVE_DIR, AppSettings
 from transcriber import Transcriber
@@ -27,11 +28,7 @@ LOG_PATH = os.path.join(SAVE_DIR, "debug.log")
 
 
 def _log(msg: str):
-    try:
-        with open(LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}\n")
-    except OSError:
-        pass
+    applog.log(msg)
 
 
 # ======================================================================
