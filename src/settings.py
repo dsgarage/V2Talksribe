@@ -14,6 +14,7 @@ from dataclasses import asdict, dataclass, field, fields
 from typing import Optional
 
 from audio_preprocess import AudioPreprocessSettings
+from devices import normalize_device_name
 
 SAVE_DIR = os.path.expanduser("~/Documents/Talksribe")
 CONFIG_PATH = os.path.join(SAVE_DIR, "config.json")
@@ -80,6 +81,7 @@ class AppSettings:
     model_size: str = DEFAULT_MODEL_SIZE
     power_profile: str = DEFAULT_POWER_PROFILE
     input_device_id: Optional[int] = None
+    input_device_name: Optional[str] = None
     preprocess: AudioPreprocessSettings = field(default_factory=AudioPreprocessSettings)
 
     def profile(self) -> dict:
@@ -88,13 +90,22 @@ class AppSettings:
     def to_dict(self) -> dict:
         return asdict(self)
 
+    def migrate_input_device_name(self, index_to_name: dict) -> bool:
+        """旧版の番号指定を名前指定へ移す。移したら True。"""
+        if self.input_device_name is not None or self.input_device_id is None:
+            return False
+        name = index_to_name.get(self.input_device_id)
+        self.input_device_name = normalize_device_name(name) if name else None
+        self.input_device_id = None
+        return True
+
     @classmethod
     def from_dict(cls, data) -> "AppSettings":
         settings = cls()
         if not isinstance(data, dict):
             return settings
 
-        for key in ("language", "model_size", "power_profile", "input_device_id"):
+        for key in ("language", "model_size", "power_profile", "input_device_id", "input_device_name"):
             if key in data:
                 setattr(settings, key, data[key])
 
