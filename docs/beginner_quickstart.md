@@ -37,7 +37,9 @@ python3 scripts/transcribe_file.py <ファイルパス> --model base --lang ja
 | 症状 | 確認すること |
 |---|---|
 | 文字起こしされない | 入力デバイスが `MacBook Airのマイク` か。マイク許可が出ているか |
-| アプリが二重に起動した | `pgrep -fl menubar.py` で確認し、古い PID を `kill <PID>` |
+| アプリが二重に起動した | 二重起動は自動で止まります(2 つ目はすぐ終了し、通知が出ます) |
+| メニューバーに Talksribe が見えない | ターミナルで `bash scripts/talksribe_diag.sh` を実行し、出力を残す(アプリは止まりません) |
+| 文字起こしに失敗した・途中で止まった | 録音中の音声は `~/Documents/Talksribe/audio/` に WAV で残っています。「ファイルを文字起こし...」で選ぶとやり直せます(14 日を過ぎたもの・合計 5GB を超えた分は古い順にゴミ箱へ移ります) |
 | ログを見たい | `~/Documents/Talksribe/debug.log` |
 | Zoom の音声を拾いたい | `docs/zoom_capture.md` を参照 |
 
