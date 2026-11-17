@@ -24,6 +24,7 @@ from typing import Optional
 import numpy as np
 
 import applog
+import level_meter
 from audio_preprocess import LiveAudioPreprocessor
 from audio_store import prune_recordings, session_part_path
 from capture import CaptureHandle, start_capture
@@ -736,6 +737,7 @@ class TranscriptionEngine:
                 raw = h.audio.recv_bytes()
                 audio = np.frombuffer(raw, dtype=np.float32)
                 self.last_audio_received_at = time.monotonic()
+                self._emit("level", level_meter.window_levels(audio, self.sr))
                 self._check_input_level(audio)
                 self._mark_healthy()
                 self._process_audio(audio)
