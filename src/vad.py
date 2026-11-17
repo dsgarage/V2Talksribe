@@ -60,7 +60,6 @@ class VoiceActivityDetector:
 
         self._webrtc = None
         self._silero = None
-        self._torch = None
 
     # ------------------------------------------------------------------
     # ロード / リセット
@@ -73,21 +72,17 @@ class VoiceActivityDetector:
             self._webrtc = webrtcvad.Vad(self.aggressiveness)
             self._silero = None
         elif self.backend == "silero":
-            import torch
+            # faster-whisper 同梱の ONNX 版を使う(ネットワークに出ない)
+            from faster_whisper.vad import get_vad_model
 
-            self._torch = torch
-            model, _ = torch.hub.load(
-                repo_or_dir="snakers4/silero-vad", model="silero_vad", verbose=False
-            )
-            model.reset_states()
-            self._silero = model
+            self._silero = get_vad_model()
             self._webrtc = None
         else:
             raise ValueError(f"未知の VAD backend: {self.backend}")
 
     def reset(self) -> None:
-        if self.backend == "silero" and self._silero is not None:
-            self._silero.reset_states()
+        # silero(ONNX 版)は呼び出しごとに状態を作り直すので、何もしない
+        return None
 
     # ------------------------------------------------------------------
     # 判定
@@ -122,15 +117,13 @@ class VoiceActivityDetector:
         return (votes / total) >= self.webrtc_vote_ratio
 
     def _is_speech_silero(self, audio: np.ndarray) -> bool:
-        if self._silero is None or self._torch is None:
+        if self._silero is None:
             return False
         if len(audio) < 512:
             return False
-        torch = self._torch
-        probs = []
-        for i in range(0, len(audio) - 512 + 1, 512):
-            tensor = torch.from_numpy(audio[i:i + 512]).float()
-            probs.append(self._silero(tensor, self.sr).item())
-        if not probs:
+        # 入力長は 512 の倍数でなければならない
+        padded = np.pad(audio, (0, (-len(audio)) % 512)).astype(np.float32)
+        probs = self._silero(padded)
+        if len(probs) == 0:
             return False
-        return (sum(probs) / len(probs)) > self.silero_threshold
+        return float(np.mean(probs)) > self.silero_threshold

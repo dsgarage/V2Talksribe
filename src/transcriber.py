@@ -32,6 +32,7 @@ class Transcriber:
         *,
         device: str = "cpu",
         compute_type: str = "int8",
+        cpu_threads: int = 0,
         language: Optional[str] = None,
         beam_size: int = 1,
         condition_on_previous_text: bool = False,
@@ -42,6 +43,7 @@ class Transcriber:
         self.model_size = model_size
         self.device = device
         self.compute_type = compute_type
+        self.cpu_threads = cpu_threads
         self.language = language
         self.beam_size = beam_size
         # ライブは False（直前文脈への暴走を防ぐ）、ファイルは True（長尺の連続性）
@@ -55,11 +57,29 @@ class Transcriber:
     def loaded(self) -> bool:
         return self._model is not None
 
-    def load(self) -> None:
+    def cached_path(self) -> Optional[str]:
+        """キャッシュ済みならローカルのパス。無ければ None(ネットワークに出ない)。"""
+        try:
+            from faster_whisper.utils import download_model
+
+            return download_model(self.model_size, local_files_only=True)
+        except Exception:
+            return None
+
+    def download(self) -> str:
+        from faster_whisper.utils import download_model
+
+        return download_model(self.model_size)
+
+    def load(self, model_path: Optional[str] = None) -> None:
         from faster_whisper import WhisperModel
 
+        # モデル名で渡すとキャッシュ済みでも HF Hub に問い合わせるので、
+        # ローカルのパスがあればそれで読む
+        path = model_path or self.cached_path() or self.model_size
         self._model = WhisperModel(
-            self.model_size, device=self.device, compute_type=self.compute_type
+            path, device=self.device, compute_type=self.compute_type,
+            cpu_threads=self.cpu_threads,
         )
 
     def unload(self) -> None:
