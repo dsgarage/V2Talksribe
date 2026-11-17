@@ -93,6 +93,8 @@ class TalksribeMenuBar(rumps.App):
         self.file_item = rumps.MenuItem("ファイルを文字起こし...", callback=self.on_file_transcribe)
         self.status_item = rumps.MenuItem("状態: 待機中")
         self.status_item.set_callback(None)
+        self.partial_item = rumps.MenuItem("途中: —")
+        self.partial_item.set_callback(None)
         self.detail_item = rumps.MenuItem("内部状態: 待機")
         self.detail_item.set_callback(None)
         self.alert_item = rumps.MenuItem("注意: なし")
@@ -105,6 +107,7 @@ class TalksribeMenuBar(rumps.App):
         self.copy_last_item = rumps.MenuItem("最新行コピー", callback=self.on_copy_last)
         self.clear_item = rumps.MenuItem("履歴クリア", callback=self.on_clear)
         self.open_folder_item = rumps.MenuItem("保存フォルダを開く", callback=self.on_open_folder)
+        self.open_vocab_item = rumps.MenuItem("語彙ファイルを開く", callback=self.on_open_vocab)
         self.open_log_item = rumps.MenuItem("デバッグログを開く", callback=self.on_open_log)
 
         self.lang_menu = rumps.MenuItem("言語")
@@ -171,6 +174,7 @@ class TalksribeMenuBar(rumps.App):
             self.toggle_item,
             self.file_item,
             self.status_item,
+            self.partial_item,
             self.detail_item,
             self.alert_item,
             self.runtime_item,
@@ -179,6 +183,7 @@ class TalksribeMenuBar(rumps.App):
             self.copy_last_item,
             self.clear_item,
             self.open_folder_item,
+            self.open_vocab_item,
             self.open_log_item,
             None,
             self.lang_menu,
@@ -274,6 +279,9 @@ class TalksribeMenuBar(rumps.App):
             self.toggle_item.title = msg[1]
         elif action == "transcript":
             self._append_transcript(msg[1], msg[2])
+            self.partial_item.title = "途中: —"
+        elif action == "partial":
+            self.partial_item.title = f"途中: {msg[1][-60:]}" if msg[1] else "途中: —"
         elif action == "file_item_reset":
             self.file_item.title = "ファイルを文字起こし..."
         elif action == "alert":
@@ -440,6 +448,17 @@ end tell
 
     def on_open_folder(self, sender):
         subprocess.Popen(["open", SAVE_DIR])
+
+    def on_open_vocab(self, sender):
+        from settings import VOCAB_PATH, VOCAB_HEADER
+        if not os.path.exists(VOCAB_PATH):
+            try:
+                with open(VOCAB_PATH, "w", encoding="utf-8") as f:
+                    f.write(VOCAB_HEADER)
+            except OSError as e:
+                _log(f"vocabulary create failed: {e}")
+                return
+        subprocess.Popen(["open", VOCAB_PATH])
 
     def on_open_log(self, sender):
         subprocess.Popen(["open", LOG_PATH])

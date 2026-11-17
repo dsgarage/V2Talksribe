@@ -18,7 +18,7 @@ from typing import Callable, Optional
 
 import applog
 from audio_preprocess import preprocess_audio_file
-from settings import SAVE_DIR, AppSettings
+from settings import SAVE_DIR, AppSettings, hotwords_from_vocabulary, load_vocabulary
 from transcriber import Transcriber
 
 FILE_PROGRESS_STEP_SEC = 20.0
@@ -204,6 +204,7 @@ class FileTranscriber:
         else:
             self._transcriber.language = self.settings.language
             self._transcriber.beam_size = self.settings.profile()["beam_size"]
+        self._transcriber.hotwords = hotwords_from_vocabulary(load_vocabulary())
 
     def transcribe(self, filepath: str) -> "tuple[int, bool, str]":
         import soundfile as sf

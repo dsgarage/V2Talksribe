@@ -97,12 +97,22 @@ class VoiceActivityDetector:
             return self._is_speech_webrtc(audio)
         return self._is_speech_silero(audio)
 
-    def _is_speech_webrtc(self, audio: np.ndarray) -> bool:
+    def speech_prob(self, audio: np.ndarray) -> float:
+        """エネルギーの関門を通さずに、発話らしさを 0〜1 で返す。
+
+        silero: 512 の倍数に詰めた確率の平均。webrtc: 30ms フレームの投票率。
+        読み込み前や短すぎるときは 0.0。
+        """
+        if self.backend == "webrtc":
+            return self._webrtc_ratio(audio)
+        return self._silero_mean(audio)
+
+    def _webrtc_ratio(self, audio: np.ndarray) -> float:
         if self._webrtc is None:
-            return False
+            return 0.0
         frame_len = int(self.sr * 0.03)  # 30ms
         if len(audio) < frame_len:
-            return False
+            return 0.0
         clipped = np.clip(audio, -1.0, 1.0)
         pcm16 = (clipped * 32767.0).astype(np.int16)
         votes = 0
@@ -113,17 +123,23 @@ class VoiceActivityDetector:
             if self._webrtc.is_speech(frame.tobytes(), self.sr):
                 votes += 1
         if total == 0:
-            return False
-        return (votes / total) >= self.webrtc_vote_ratio
+            return 0.0
+        return votes / total
 
-    def _is_speech_silero(self, audio: np.ndarray) -> bool:
+    def _silero_mean(self, audio: np.ndarray) -> float:
         if self._silero is None:
-            return False
+            return 0.0
         if len(audio) < 512:
-            return False
+            return 0.0
         # 入力長は 512 の倍数でなければならない
         padded = np.pad(audio, (0, (-len(audio)) % 512)).astype(np.float32)
         probs = self._silero(padded)
         if len(probs) == 0:
-            return False
-        return float(np.mean(probs)) > self.silero_threshold
+            return 0.0
+        return float(np.mean(probs))
+
+    def _is_speech_webrtc(self, audio: np.ndarray) -> bool:
+        return self._webrtc_ratio(audio) >= self.webrtc_vote_ratio
+
+    def _is_speech_silero(self, audio: np.ndarray) -> bool:
+        return self._silero_mean(audio) > self.silero_threshold

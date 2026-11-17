@@ -39,6 +39,7 @@ class Transcriber:
         no_speech_threshold: float = DEFAULT_NO_SPEECH_THRESHOLD,
         log_prob_threshold: float = DEFAULT_LOG_PROB_THRESHOLD,
         compression_ratio_threshold: float = DEFAULT_COMPRESSION_RATIO_THRESHOLD,
+        hotwords: Optional[str] = None,
     ):
         self.model_size = model_size
         self.device = device
@@ -51,6 +52,7 @@ class Transcriber:
         self.no_speech_threshold = no_speech_threshold
         self.log_prob_threshold = log_prob_threshold
         self.compression_ratio_threshold = compression_ratio_threshold
+        self.hotwords = hotwords
         self._model = None
 
     @property
@@ -117,27 +119,38 @@ class Transcriber:
     # 低レベル transcribe（共通パラメータを一元化）
     # ------------------------------------------------------------------
 
-    def _transcribe(self, source, *, vad_filter: bool):
+    def _transcribe(self, source, *, vad_filter: bool, initial_prompt: Optional[str] = None,
+                    beam_size: Optional[int] = None, temperature=None,
+                    max_new_tokens: Optional[int] = None, without_timestamps: bool = False):
         if self._model is None:
             raise RuntimeError("Transcriber.load() が未実行です")
+        kwargs = {}
+        if temperature is not None:
+            kwargs["temperature"] = list(temperature)
+        if max_new_tokens is not None:
+            kwargs["max_new_tokens"] = max_new_tokens
         return self._model.transcribe(
             source,
             language=self.language,
-            beam_size=self.beam_size,
+            beam_size=beam_size or self.beam_size,
             vad_filter=vad_filter,
             condition_on_previous_text=self.condition_on_previous_text,
             no_speech_threshold=self.no_speech_threshold,
             log_prob_threshold=self.log_prob_threshold,
             compression_ratio_threshold=self.compression_ratio_threshold,
+            hotwords=self.hotwords,
+            initial_prompt=initial_prompt,
+            without_timestamps=without_timestamps,
+            **kwargs,
         )
 
     # ------------------------------------------------------------------
     # ファイル経路: 信頼できるセグメントを逐次 yield
     # ------------------------------------------------------------------
 
-    def iter_segments(self, source, *, vad_filter: bool, strict: bool = True):
+    def iter_segments(self, source, *, vad_filter: bool, strict: bool = True, **opts):
         """(info, generator) を返す。generator は信頼度フィルタ済みセグメント。"""
-        segments, info = self._transcribe(source, vad_filter=vad_filter)
+        segments, info = self._transcribe(source, vad_filter=vad_filter, **opts)
 
         def gen() -> Iterator:
             for seg in segments:
@@ -150,15 +163,25 @@ class Transcriber:
     # ライブ経路: numpy 音声 → 確定テキスト列
     # ------------------------------------------------------------------
 
+    def collect_segments(self, audio: np.ndarray, initial_prompt: Optional[str] = None, **opts) -> list:
+        """音声配列を文字起こしし、信頼できるセグメントを SegInfo の列で返す。"""
+        from segmenter import SegInfo
+
+        _, segs = self.iter_segments(audio, vad_filter=False, initial_prompt=initial_prompt, **opts)
+        return [SegInfo(float(s.start), float(s.end), s.text.strip(),
+                        float(getattr(s, "no_speech_prob", 0.0) or 0.0),
+                        float(getattr(s, "avg_logprob", 0.0) or 0.0))
+                for s in segs if s.text.strip()]
+
     def collect_texts(
-        self, audio: np.ndarray, emit_until_sec: Optional[float] = None
+        self, audio: np.ndarray, emit_until_sec: Optional[float] = None, **opts
     ) -> List[str]:
         """音声配列を文字起こしし、信頼できるテキストのみ返す。
 
         ``emit_until_sec`` を与えると、その時刻までに終わる区間のみ確定し、
         跨いでいる区間は暫定 1 件だけ返す（長尺発話の分割確定に使う）。
         """
-        _, segs = self.iter_segments(audio, vad_filter=False)
+        _, segs = self.iter_segments(audio, vad_filter=False, **opts)
 
         texts: List[str] = []
         fallback: List[str] = []
