@@ -17,18 +17,20 @@ import queue
 import threading
 import time
 import traceback
+from collections import deque
 from datetime import datetime
 from typing import Optional
 
 import numpy as np
 
+import applog
 from audio_preprocess import LiveAudioPreprocessor
-from capture import start_capture, stop_capture
+from audio_store import prune_recordings, session_part_path
+from capture import CaptureHandle, start_capture
+from model_loader import LoadJob, hf_cache_bytes
 from settings import SAVE_DIR, AppSettings
 from transcriber import Transcriber
 from vad import VoiceActivityDetector
-
-LOG_PATH = os.path.join(SAVE_DIR, "debug.log")
 
 # --- タイミング定数 ---
 PARTIAL_MIN_SEC = 1.5
@@ -39,23 +41,47 @@ MAX_SPEECH_BUF_SEC = 18.0        # これを超えたら VAD に関係なく強�
 MAX_EMPTY_WINDOW_STREAK = 2      # 連続でこの回数だけ空確定したらバッファ全破棄
 # capture 監視
 CAPTURE_STALL_SEC = 3.0
-CAPTURE_RESTART_COOLDOWN_SEC = 8.0
+CAPTURE_START_TIMEOUT_SEC = 8.0
+CAPTURE_BACKOFF_SEC = (1.0, 2.0, 4.0, 8.0, 15.0)
+MAX_CAPTURE_FAILURES = 5
+CAPTURE_HEALTHY_SEC = 10.0
+SILENT_INPUT_PEAK = 1e-4
+SILENT_INPUT_NOTIFY_SEC = 30.0
+# ワーカーの例外・読み込み・取りこぼし
+WORKER_ERROR_WINDOW_SEC = 60.0
+MAX_WORKER_ERRORS_IN_WINDOW = 3
+LOAD_TIMEOUT_SEC = 180.0
+DOWNLOAD_STALL_SEC = 120.0
+DOWNLOAD_PROBE_SEC = 5.0
+DROP_ALERT_INTERVAL_SEC = 30.0
+LOAD_STATUS_INTERVAL_SEC = 1.0
+# 録音ファイルの自動整理
+RETENTION_DAYS = 14
+RETENTION_MAX_BYTES = 5 * 1024**3
 
 
 def _log(msg: str):
-    try:
-        with open(LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(f"[{time.strftime('%H:%M:%S')}] {msg}\n")
-    except OSError:
-        pass
+    applog.log(msg)
 
 
 class TranscriptionEngine:
     """ライブ文字起こしの状態機械。ワーカースレッド 1 本で駆動する。"""
 
-    def __init__(self, settings: AppSettings):
+    def __init__(self, settings: AppSettings, *, capture_factory=None, transcriber_factory=None,
+                 vad_factory=None, save_dir: Optional[str] = None, record_audio: bool = True,
+                 prune_audio: bool = True):
         self.settings = settings
         self.sr = 16000
+        self.capture_factory = capture_factory or start_capture
+        self.transcriber_factory = transcriber_factory or (
+            lambda size, lang, beam: Transcriber(size, language=lang, beam_size=beam))
+        self.vad_factory = vad_factory or (
+            lambda b, sr, agg: VoiceActivityDetector(b, sr, aggressiveness=agg))
+        self.save_dir = save_dir or SAVE_DIR
+        self.audio_dir = os.path.join(self.save_dir, "audio")
+        self.record_audio = record_audio
+        # 古い録音の自動整理はユーザー承認済み(2026-11-17)。テストと再生では False を渡す
+        self.prune_audio = prune_audio
 
         # UI との通信路
         self.events: "queue.Queue" = queue.Queue()
@@ -80,12 +106,35 @@ class TranscriptionEngine:
         self.save_path: Optional[str] = None
 
         # capture 子プロセス
-        self._capture_pipe = None
-        self._capture_stop = None
-        self._capture_proc = None
+        self._capture: Optional[CaptureHandle] = None
+        self._capture_started = False
+        self._capture_opened_at = 0.0
+        self._capture_failures = 0
+        self._next_reconnect_at = 0.0
+        self._use_default_device = False
+        self._active_device_name: Optional[str] = None
+        self._healthy_since: Optional[float] = None
+        self._silent_since: Optional[float] = None
+        self._silent_alerted = False
+        self._last_drop_total = 0
+        self._last_drop_record = 0
+        self._last_drop_alert_at = 0.0
         self.last_audio_received_at = 0.0
-        self.last_capture_restart_at = 0.0
-        self.capture_restart_count = 0
+
+        # ワーカーの例外・読み込みジョブ・セッション
+        self._worker_errors: deque = deque()
+        self._load_job: Optional[LoadJob] = None
+        self._abandoned_job: Optional[LoadJob] = None
+        self._loaded_key: Optional[tuple] = None
+        self._load_last_status_at = 0.0
+        self._dl_bytes = 0
+        self._dl_progress_at = 0.0
+        self._dl_probe_at = 0.0
+        self._pending_restart = False
+        self._session_ts: Optional[str] = None
+        self._part = 0
+        self.heartbeat_at = time.monotonic()
+        self._crashed = False
 
         self._apply_profile_params()
 
@@ -130,8 +179,12 @@ class TranscriptionEngine:
     def set_profile(self, name: str):
         self._commands.put(("set_profile", name))
 
-    def set_device(self, device_id: Optional[int]):
-        self._commands.put(("set_device", device_id))
+    def toggle(self):
+        self._commands.put(("toggle",))
+
+    def set_device(self, name: Optional[str]):
+        """入力デバイスを名前で指定する(None = システム既定)。"""
+        self._commands.put(("set_device", name))
 
     def set_preprocess(self):
         # settings.preprocess は呼び出し側で更新済み
@@ -140,6 +193,23 @@ class TranscriptionEngine:
     def shutdown(self):
         self._shutdown.set()
         self._commands.put(("shutdown",))
+
+    @property
+    def is_loading(self) -> bool:
+        return self._load_job is not None
+
+    def worker_alive(self) -> bool:
+        return self._worker is not None and self._worker.is_alive()
+
+    def ensure_worker(self) -> bool:
+        """ワーカーが死んでいて shutdown でなければ起こし直す。起こし直したら True。"""
+        if self._shutdown.is_set() or self.worker_alive():
+            return False
+        _log("worker thread is dead → restart")
+        self._crashed = True
+        self._worker = None
+        self.run()
+        return True
 
     # ==================================================================
     # イベント送出
@@ -158,6 +228,10 @@ class TranscriptionEngine:
         if detail:
             self._emit("detail", detail)
 
+    def _alert(self, text: str):
+        _log(f"alert: {text}")
+        self._emit("alert", text)
+
     def _elapsed_str(self) -> str:
         if self.rec_start_time is None:
             return "0:00"
@@ -173,19 +247,31 @@ class TranscriptionEngine:
 
     def _loop(self):
         while not self._shutdown.is_set():
-            self._drain_commands()
-            if self._shutdown.is_set():
-                break
-            if self.is_recording:
-                self._pump_audio()
-            else:
-                # アイドル時はコマンド待ち（軽負荷）
-                try:
-                    cmd = self._commands.get(timeout=0.2)
-                    self._handle_command(cmd)
-                except queue.Empty:
-                    pass
-        self._stop_capture()
+            self.heartbeat_at = time.monotonic()
+            try:
+                if self._crashed:
+                    self._crashed = False
+                    self._recover_recording("ワーカーを再起動しました")
+                self._drain_commands()
+                if self._shutdown.is_set():
+                    break
+                if self.is_recording:
+                    self._pump_audio()
+                else:
+                    # アイドル時はコマンド待ち（軽負荷）。読み込み中は経過を見るので短く待つ
+                    if self._load_job is not None:
+                        self._poll_load_job()
+                    self._wait_command(0.1 if self._load_job is not None else 0.2)
+            except Exception as e:
+                self._on_worker_error(e)
+        self._close_capture()
+
+    def _wait_command(self, timeout: float):
+        try:
+            cmd = self._commands.get(timeout=timeout)
+        except queue.Empty:
+            return
+        self._handle_command(cmd)
 
     def _drain_commands(self):
         while True:
@@ -208,11 +294,18 @@ class TranscriptionEngine:
                 self._handle_set_model(cmd[1])
             elif action == "set_profile":
                 self._handle_set_profile(cmd[1])
+            elif action == "toggle":
+                if self.is_recording or self._load_job is not None:
+                    self._handle_stop()
+                else:
+                    self._handle_start()
             elif action == "set_device":
                 self._handle_set_device(cmd[1])
             elif action == "set_preprocess":
                 self._handle_set_preprocess()
             elif action == "shutdown":
+                if self._load_job is not None:
+                    self._load_job.cancel()
                 if self.is_recording:
                     self._handle_stop()
         except Exception as e:
@@ -223,13 +316,43 @@ class TranscriptionEngine:
     # ==================================================================
 
     def _handle_start(self):
-        if self.is_recording:
+        if self.is_recording or self._load_job is not None:
             return
-        self._emit("toggle", "読み込み中...")
-        self._emit("status", "モデル読み込み中...")
-        self._emit("detail", "録音開始準備")
+        model = self.settings.model_size
+        want_key = (model, self.beam_size, self.vad_backend)
+        if (self.transcriber is not None and self.vad is not None
+                and self.transcriber.model_size == model and self._loaded_key == want_key):
+            self.transcriber.language = self.settings.language
+            self.transcriber.beam_size = self.beam_size
+            try:
+                self.vad.reset()
+            except Exception as e:
+                self._report("vad.reset", e)
+            self._begin_stream_safely()
+            return
+        job = self._abandoned_job
+        if job is not None and not job.done.is_set() and job.key == want_key:
+            # 取り消した読み込みがまだ走っていて同じ条件なら引き取る
+            job.cancelled = False
+            self._abandoned_job = None
+        else:
+            job = LoadJob(
+                transcriber_factory=self.transcriber_factory, vad_factory=self.vad_factory,
+                model_size=model, language=self.settings.language, beam_size=self.beam_size,
+                vad_backend=self.vad_backend, vad_aggressiveness=self.vad_aggressiveness, sr=self.sr,
+            )
+            job.start()
+        self._load_job = job
+        self._load_last_status_at = 0.0
+        self._dl_bytes = 0
+        self._dl_progress_at = time.monotonic()
+        self._dl_probe_at = 0.0
+        self._emit("toggle", "読み込みを取り消す")
+        self._emit("status", f"読み込み中: Whisper {model}")
+        self._emit("detail", "録音開始準備: モデル読み込み")
+
+    def _begin_stream_safely(self):
         try:
-            self._ensure_loaded()
             self._begin_stream()
         except Exception as e:
             self._report("_handle_start", e, detail="録音開始に失敗")
@@ -237,32 +360,58 @@ class TranscriptionEngine:
             self._emit("status", f"エラー: {e}")
             self._emit("notify", "Talksribe", "エラー", f"録音開始に失敗: {str(e)[:80]}")
 
-    def _ensure_loaded(self):
-        # Whisper
-        if self.transcriber is None or self.transcriber.model_size != self.settings.model_size:
-            self._emit("status", f"Whisper {self.settings.model_size} 読み込み中...")
-            self._emit("detail", f"モデル準備: Whisper {self.settings.model_size}")
-            self.transcriber = Transcriber(
-                self.settings.model_size,
-                language=self.settings.language,
-                beam_size=self.beam_size,
-            )
-            self.transcriber.load()
-        else:
-            self.transcriber.language = self.settings.language
-            self.transcriber.beam_size = self.beam_size
+    def _poll_load_job(self):
+        job = self._load_job
+        model = job.model_size
+        now = time.monotonic()
+        if job.done.is_set():
+            self._load_job = None
+            if job.error:
+                self._emit("toggle", "録音開始")
+                self._emit("status", f"エラー: {job.error}")
+                self._emit("notify", "Talksribe", "エラー", f"モデルの読み込みに失敗: {job.error[:80]}")
+                self._alert(f"モデルの読み込みに失敗: {job.error}")
+                return
+            self.transcriber = job.transcriber
+            self.vad = job.vad
+            # silero が webrtc に切り替わった場合も要求した key を入れる(次回の開始で試し直さない)
+            self._loaded_key = job.key
+            for w in job.warnings:
+                self._alert(w)
+                self._emit("notify", "Talksribe", "注意", w[:120])
+            self._begin_stream_safely()
+            return
+        if job.phase == "download":
+            if now - self._dl_probe_at >= DOWNLOAD_PROBE_SEC:
+                self._dl_probe_at = now
+                b = hf_cache_bytes(model)
+                if b > self._dl_bytes:
+                    self._dl_bytes = b
+                    self._dl_progress_at = now
+            if now - self._dl_progress_at > DOWNLOAD_STALL_SEC:
+                self._timeout_load(
+                    f"モデル {model} のダウンロードが {int(DOWNLOAD_STALL_SEC)} 秒進みません。ネットワークを確認してください")
+                return
+        elif now - job.phase_started_at > LOAD_TIMEOUT_SEC:
+            self._timeout_load(f"読み込みが {int(LOAD_TIMEOUT_SEC)} 秒で終わりません ({job.phase})")
+            return
+        if now - self._load_last_status_at >= LOAD_STATUS_INTERVAL_SEC:
+            self._load_last_status_at = now
+            sec = int(now - job.started_at)
+            if job.phase == "download":
+                self._emit("status", f"ダウンロード中: Whisper {model} ({self._dl_bytes // (1024 * 1024)}MB, {sec}秒)")
+            else:
+                self._emit("status", f"読み込み中: Whisper {model} ({sec}秒)")
 
-        # VAD
-        if self.vad is None or self.vad.backend != self.vad_backend:
-            self._emit("detail", f"モデル準備: VAD({self.vad_backend})")
-            self.vad = VoiceActivityDetector(
-                self.vad_backend,
-                self.sr,
-                aggressiveness=self.vad_aggressiveness,
-            )
-            self.vad.load()
-        else:
-            self.vad.reset()
+    def _timeout_load(self, reason: str):
+        job = self._load_job
+        job.cancel()
+        self._abandoned_job = job
+        self._load_job = None
+        self._emit("toggle", "録音開始")
+        self._emit("status", f"時間切れ: {reason}")
+        self._emit("notify", "Talksribe", "時間切れ", reason[:120])
+        self._alert(reason)
 
     def _ensure_live_preprocessor(self):
         if self.settings.preprocess.enabled():
@@ -275,22 +424,39 @@ class TranscriptionEngine:
         self._ensure_live_preprocessor()
 
         ts = datetime.now().strftime("%Y%m%d%H%M%S")
-        self.save_path = os.path.join(SAVE_DIR, f"{ts}.txt")
+        self._session_ts = ts
+        self._part = 0
+        self._use_default_device = False
+        self._capture_failures = 0
+        self._next_reconnect_at = 0.0
+        if self.record_audio and self.prune_audio:
+            try:
+                moved = prune_recordings(self.audio_dir, max_age_days=RETENTION_DAYS,
+                                         max_total_bytes=RETENTION_MAX_BYTES, protect_prefix=ts)
+                if moved:
+                    _log(f"prune_recordings: {len(moved)} 件をゴミ箱へ")
+            except Exception as e:
+                self._report("prune_recordings", e)
+        os.makedirs(self.save_dir, exist_ok=True)
+        self.save_path = os.path.join(self.save_dir, f"{ts}.txt")
         with open(self.save_path, "w", encoding="utf-8") as f:
-            f.write(f"# Talksribe 録音 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"# Talksribe 録音 {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            if self.record_audio:
+                f.write(f"# 音声: audio/{ts}_NN.wav(再接続のたびに NN が増えます)\n")
+            f.write("\n")
 
-        self._capture_pipe, self._capture_stop, self._capture_proc = start_capture(
-            sr=self.sr, chunk_sec=self.chunk_sec, device_id=self.settings.input_device_id,
-        )
-        self.last_audio_received_at = time.monotonic()
         self.is_recording = True
+        # キャプチャの失敗は _open_capture が握って再接続に回すので、ここでは例外を出さない
+        self._open_capture()
 
         self._emit("title", "REC")
         self._emit("toggle", "録音停止")
         self._emit("status", "録音中 0:00")
         self._emit("detail", "待機: 音声入力を監視中")
         self._emit("notify", "Talksribe", "録音開始", f"保存先: {self.save_path}")
-        _log(f"begin_stream: device={self.settings.input_device_id} model={self.settings.model_size} vad={self.vad_backend}")
+        _log(f"begin_stream: device_name={self.settings.input_device_name!r} "
+             f"model={self.settings.model_size} vad={self.vad_backend} "
+             f"audio={self.record_audio} prune={self.prune_audio}")
 
     def _reset_live_state(self):
         self.speech_buf = np.zeros(0, dtype=np.float32)
@@ -300,16 +466,29 @@ class TranscriptionEngine:
         self._empty_window_streak = 0
         self.rec_start_time = time.time()
         self.total_utterances = 0
-        self.last_capture_restart_at = 0.0
-        self.capture_restart_count = 0
+        self._silent_since = None
+        self._silent_alerted = False
+        self._last_drop_total = 0
+        self._last_drop_record = 0
+        self._last_drop_alert_at = 0.0
+        self._worker_errors.clear()
 
     def _handle_stop(self):
+        if self._load_job is not None:
+            job = self._load_job
+            job.cancel()
+            self._abandoned_job = job
+            self._load_job = None
+            self._emit("toggle", "録音開始")
+            self._emit("status", "読み込みを取り消しました")
+            self._emit("detail", "待機")
+            return
         if not self.is_recording:
             return
         self._emit("detail", "停止中: 残り音声を確定")
         # 残っているキャプチャを吸い出してバッファへ
         self._drain_capture_into_buffer()
-        self._stop_capture()
+        self._close_capture()
 
         if len(self.speech_buf) > self.sr * 0.3 and self.transcriber is not None:
             self._finalize_all(reason="stop")
@@ -319,7 +498,10 @@ class TranscriptionEngine:
         self._emit("title", "MIC")
         self._emit("toggle", "録音開始")
         if self.save_path:
-            self._emit("status", f"保存済み ({elapsed}, {self.total_utterances}件)")
+            text = f"保存済み ({elapsed}, {self.total_utterances}件)"
+            if self.record_audio and self._session_ts:
+                text += f" 音声: audio/{self._session_ts}_*.wav"
+            self._emit("status", text)
         else:
             self._emit("status", "停止")
         self._emit("detail", "待機")
@@ -336,18 +518,36 @@ class TranscriptionEngine:
     # capture 管理
     # ==================================================================
 
-    def _stop_capture(self):
-        if self._capture_stop is not None and self._capture_proc is not None:
+    def _open_capture(self):
+        self._part += 1
+        record_path = (session_part_path(self.audio_dir, self._session_ts, self._part)
+                       if self.record_audio and self._session_ts else None)
+        if record_path:
+            os.makedirs(self.audio_dir, exist_ok=True)
+        name = None if self._use_default_device else self.settings.input_device_name
+        now = time.monotonic()
+        self._capture_started = False
+        self._capture_opened_at = now
+        self.last_audio_received_at = now
+        self._healthy_since = None
+        try:
+            self._capture = self.capture_factory(self.sr, self.chunk_sec, name, record_path)
+        except Exception as e:
+            self._capture = None
+            self._report("_open_capture", e)
+            self._on_capture_lost(f"開始に失敗: {e}")
+
+    def _close_capture(self):
+        h = self._capture
+        self._capture = None
+        if h is not None:
             try:
-                stop_capture(self._capture_stop, self._capture_proc)
+                h.stop()
             except Exception as e:
-                self._report("_stop_capture", e, detail="入力プロセスの停止に失敗")
-        self._capture_pipe = None
-        self._capture_stop = None
-        self._capture_proc = None
+                self._report("_close_capture", e)
 
     def _drain_capture_into_buffer(self):
-        pipe = self._capture_pipe
+        pipe = self._capture.audio if self._capture is not None else None
         if pipe is None:
             return
         try:
@@ -358,48 +558,194 @@ class TranscriptionEngine:
         except (EOFError, OSError):
             pass
 
-    def _restart_capture(self):
-        now = time.monotonic()
-        if now - self.last_capture_restart_at < CAPTURE_RESTART_COOLDOWN_SEC:
-            return
-        self.last_capture_restart_at = now
-        self.capture_restart_count += 1
-        _log(f"_restart_capture: #{self.capture_restart_count}")
-        self._emit("detail", f"入力停止を検知: 再接続中 ({self.capture_restart_count})")
+    def _poll_ctrl(self) -> bool:
+        """キャプチャ子プロセスからの状態の知らせを処理する。接続を失ったら False。"""
+        h = self._capture
+        try:
+            while h is not None and h.ctrl.poll(0):
+                msg = h.ctrl.recv()
+                t = msg.get("type")
+                if t == "started":
+                    self._capture_started = True
+                    self._active_device_name = msg.get("device_name")
+                    self.last_audio_received_at = time.monotonic()
+                    _log(f"capture started: {msg}")
+                    if msg.get("fell_back") and msg.get("requested"):
+                        text = (f"入力デバイス '{msg['requested']}' が見つからないため"
+                                f"既定の入力 '{msg.get('device_name')}' を使います")
+                        self._alert(text)
+                        self._emit("notify", "Talksribe", "入力デバイス", text[:120])
+                elif t == "error":
+                    self._on_capture_lost(msg.get("message", "不明なエラー"))
+                    return False
+                elif t == "stats":
+                    self._handle_capture_stats(msg)
+                # "eof" は何もしない(再生で使う)
+        except (EOFError, OSError) as e:
+            _log(f"ctrl pipe error: {type(e).__name__}: {e}")
+            self._on_capture_lost("入力プロセスとの接続が切れました")
+            return False
+        return True
 
-        self._stop_capture()
-        self._capture_pipe, self._capture_stop, self._capture_proc = start_capture(
-            sr=self.sr, chunk_sec=self.chunk_sec, device_id=self.settings.input_device_id,
-        )
-        self.last_audio_received_at = time.monotonic()
+    def _handle_capture_stats(self, msg: dict):
+        live = int(msg.get("dropped_live_chunks", 0))
+        rec = int(msg.get("dropped_record_chunks", 0))
+        total = live + rec
+        if total > self._last_drop_total:
+            _log(f"capture dropped: live={live} record={rec} flags={msg.get('status_flags')}")
+            now = time.monotonic()
+            if now - self._last_drop_alert_at >= DROP_ALERT_INTERVAL_SEC:
+                self._last_drop_alert_at = now
+                if rec > self._last_drop_record:
+                    text = f"処理の遅れで音声 {rec * self.chunk_sec:.0f}秒ぶんを録音ファイルにも書けていません"
+                else:
+                    text = (f"処理の遅れで音声 {live * self.chunk_sec:.0f}秒ぶんを文字起こしできませんでした"
+                            f"(録音ファイルには残っています)")
+                self._alert(text)
+                self._emit("notify", "Talksribe", "音声の取りこぼし", text[:120])
+            self._last_drop_total = total
+            self._last_drop_record = rec
+
+    def _on_capture_lost(self, reason: str):
+        self._close_capture()
+        self._capture_failures += 1
+        n = self._capture_failures
+        _log(f"capture lost: {reason} (failures={n}, default={self._use_default_device})")
+        if n > MAX_CAPTURE_FAILURES:
+            if not self._use_default_device and self.settings.input_device_name:
+                name = self.settings.input_device_name
+                # 既定に切り替えたあとは、その録音の間は元のデバイスに戻らない
+                self._use_default_device = True
+                self._capture_failures = 0
+                text = f"'{name}' に接続できないため既定の入力に切り替えます"
+                self._alert(text)
+                self._emit("notify", "Talksribe", "入力デバイス", text[:120])
+                self._next_reconnect_at = time.monotonic()
+                return
+            self._abort_recording(f"入力に接続できません: {reason}")
+            return
+        delay = CAPTURE_BACKOFF_SEC[min(n - 1, len(CAPTURE_BACKOFF_SEC) - 1)]
+        self._next_reconnect_at = time.monotonic() + delay
+        self._alert(f"入力が切れました ({reason})。{delay:.0f}秒後に再接続 ({n}/{MAX_CAPTURE_FAILURES})")
+
+    def _mark_healthy(self):
+        if not self._capture_started:
+            return
+        now = time.monotonic()
+        if self._healthy_since is None:
+            self._healthy_since = now
+        elif now - self._healthy_since >= CAPTURE_HEALTHY_SEC and self._capture_failures:
+            self._capture_failures = 0
+
+    def _check_input_level(self, raw: np.ndarray):
+        peak = float(np.max(np.abs(raw))) if raw.size else 0.0
+        now = time.monotonic()
+        if peak < SILENT_INPUT_PEAK:
+            if self._silent_since is None:
+                self._silent_since = now
+            elif not self._silent_alerted and now - self._silent_since >= SILENT_INPUT_NOTIFY_SEC:
+                self._silent_alerted = True
+                dev = self._active_device_name or self.settings.input_device_name or "システム既定"
+                text = f"入力が {int(SILENT_INPUT_NOTIFY_SEC)} 秒間まったく無音です: {dev}。入力デバイスを確認してください"
+                self._alert(text)
+                self._emit("notify", "Talksribe", "無音", text[:120])
+        else:
+            self._silent_since = None
+            self._silent_alerted = False
+
+    # ==================================================================
+    # ワーカーの例外と回復
+    # ==================================================================
+
+    def _on_worker_error(self, e: Exception):
+        _log(f"worker error: {type(e).__name__}: {e}")
+        _log(traceback.format_exc())
+        now = time.monotonic()
+        self._worker_errors.append(now)
+        while self._worker_errors and now - self._worker_errors[0] > WORKER_ERROR_WINDOW_SEC:
+            self._worker_errors.popleft()
+        if not self.is_recording:
+            self._alert(f"処理中にエラー: {type(e).__name__}: {e}")
+            return
+        if len(self._worker_errors) >= MAX_WORKER_ERRORS_IN_WINDOW:
+            self._abort_recording(f"エラーが続いたため ({type(e).__name__}: {e})")
+            return
+        self._emit("notify", "Talksribe", "エラー",
+                   f"処理中にエラー: {type(e).__name__}: {str(e)[:60]}。録音を再開します")
+        self._recover_recording(f"処理中にエラー: {type(e).__name__}: {e}")
+
+    def _recover_recording(self, reason: str):
+        """キャプチャを閉じ、バッファを捨てて開き直す。セッション・txt・経過時間はそのまま。"""
+        if not self.is_recording:
+            return
+        self._close_capture()
+        self.speech_buf = np.zeros(0, dtype=np.float32)
+        self.silence_count = 0
+        self._empty_window_streak = 0
+        self.last_partial_at = 0.0
+        if self.vad is not None:
+            try:
+                self.vad.reset()
+            except Exception as e2:
+                self._report("vad.reset", e2)
+        self._next_reconnect_at = time.monotonic()
+        self._alert(f"録音を再開します: {reason}")
+
+    def _abort_recording(self, reason: str):
+        self._close_capture()
+        if len(self.speech_buf) > self.sr * 0.3 and self.transcriber is not None:
+            try:
+                self._finalize_all(reason="abort")
+            except Exception as e:
+                self._report("_abort_recording finalize", e)
+        self.is_recording = False
+        self._emit("title", "MIC")
+        self._emit("toggle", "録音開始")
+        self._emit("status", f"停止: {reason}")
+        self._emit("detail", "待機")
+        where = f"{self.audio_dir}/{self._session_ts}_*.wav" if self.record_audio and self._session_ts else "なし"
+        text = f"録音を止めました: {reason}。音声: {where}"
+        self._emit("notify", "Talksribe", "録音停止", text[:120])
+        self._alert(text)
+        self.rec_start_time = None
 
     # ==================================================================
     # 音声処理
     # ==================================================================
 
     def _pump_audio(self):
-        pipe = self._capture_pipe
-        if pipe is None:
-            self._register_silence()
+        now = time.monotonic()
+        if self._capture is None:
+            if now >= self._next_reconnect_at:
+                self._open_capture()
+            else:
+                self._wait_command(0.2)
+            return  # ここで _register_silence を呼ばない(空回りの原因)
+        if not self._poll_ctrl():
+            return
+        h = self._capture
+        if h is None:
             return
         try:
-            if pipe.poll(min(self.chunk_sec, 0.3)):
-                raw = pipe.recv_bytes()
+            if h.audio.poll(min(self.chunk_sec, 0.3)):
+                raw = h.audio.recv_bytes()
                 audio = np.frombuffer(raw, dtype=np.float32)
                 self.last_audio_received_at = time.monotonic()
+                self._check_input_level(audio)
+                self._mark_healthy()
                 self._process_audio(audio)
                 return
         except (EOFError, OSError) as e:
             _log(f"_pump_audio pipe error: {type(e).__name__}: {e}")
-            self._emit("detail", "入力ストリームが切断")
-            self._restart_capture()
+            self._on_capture_lost("入力ストリームが切断")
             return
-        # このポーリング周期で音声が来なかった → stall 監視
-        if (
-            self.last_audio_received_at
-            and time.monotonic() - self.last_audio_received_at >= CAPTURE_STALL_SEC
-        ):
-            self._restart_capture()
+        now = time.monotonic()
+        if not h.is_alive():
+            self._on_capture_lost("入力プロセスが終了")
+        elif not self._capture_started and now - self._capture_opened_at > CAPTURE_START_TIMEOUT_SEC:
+            self._on_capture_lost("入力の開始が時間切れ")
+        elif self._capture_started and now - self.last_audio_received_at >= CAPTURE_STALL_SEC:
+            self._on_capture_lost(f"入力が {int(CAPTURE_STALL_SEC)} 秒止まりました")
 
     def _preprocess(self, chunk: np.ndarray) -> np.ndarray:
         if self.live_preprocessor is None:
@@ -526,19 +872,34 @@ class TranscriptionEngine:
             self.transcriber.language = lang
         self._emit("status", f"言語 → {lang or '自動検出'}")
 
+    def _cancel_load_for_restart(self):
+        """読み込み中の設定変更: 今の読み込みを取り消し、新しい条件で読み込み直す。"""
+        if self._load_job is not None:
+            job = self._load_job
+            job.cancel()
+            self._abandoned_job = job
+            self._load_job = None
+            self._pending_restart = True
+
     def _handle_set_model(self, size: str):
         if size == self.settings.model_size:
             return
+        self._cancel_load_for_restart()
         self.settings.model_size = size
         self.settings.save()
         self.transcriber = None  # 次回ロードで作り直し
+        self._loaded_key = None
         self._emit("status", f"モデル → {size}")
         if self.is_recording:
             self._restart_stream()
+        elif self._pending_restart:
+            self._pending_restart = False
+            self._handle_start()
 
     def _handle_set_profile(self, name: str):
         if name == self.settings.power_profile:
             return
+        self._cancel_load_for_restart()
         self.settings.power_profile = name
         # プロファイル既定モデルを実効モデルへ反映
         self.settings.model_size = self.settings.profile()["model_size"]
@@ -546,14 +907,19 @@ class TranscriptionEngine:
         self._apply_profile_params()
         self.transcriber = None
         self.vad = None
+        self._loaded_key = None
         self._emit("status", f"電力 → {self.settings.profile()['label']}")
         if self.is_recording:
             self._restart_stream()
+        elif self._pending_restart:
+            self._pending_restart = False
+            self._handle_start()
 
-    def _handle_set_device(self, device_id: Optional[int]):
-        self.settings.input_device_id = device_id
+    def _handle_set_device(self, name: Optional[str]):
+        self.settings.input_device_name = name
+        self.settings.input_device_id = None
         self.settings.save()
-        self._emit("status", f"入力デバイス → {device_id}")
+        self._emit("status", f"入力デバイス → {name or 'システム既定'}")
         if self.is_recording:
             self._restart_stream()
 
