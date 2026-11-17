@@ -199,7 +199,9 @@ class TalksribeMenuBar(rumps.App):
     def _build_device_menu(self, devs=None):
         if devs is None:
             devs = devices.list_input_devices()
-        self.device_menu.clear()
+        # rumps の clear() は、子を 1 つも足していない項目(_menu が None)では落ちる
+        if self.device_menu._menu is not None:
+            self.device_menu.clear()
         self._device_items = {}
         selected = self.settings.input_device_name
         sel_norm = devices.normalize_device_name(selected) if selected else None
